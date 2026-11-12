@@ -11,13 +11,16 @@ const toneClasses: Record<CardTone, string> = {
 
 interface CardProps extends ComponentProps<'div'> {
   tone?: CardTone
+  /** Set false for edge-to-edge content such as thumbnails. */
+  padded?: boolean
 }
 
-export function Card({ tone = 'default', className, ...props }: CardProps) {
+export function Card({ tone = 'default', padded = true, className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'relative rounded-3xl border p-5 shadow-soft md:p-6',
+        'relative rounded-3xl border shadow-soft',
+        padded && 'p-5 md:p-6',
         toneClasses[tone],
         className,
       )}
