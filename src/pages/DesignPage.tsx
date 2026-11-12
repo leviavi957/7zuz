@@ -8,6 +8,7 @@ import { Heatmap } from '@/components/shared/Heatmap'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { ProgressRing } from '@/components/shared/ProgressRing'
 import { Skeleton } from '@/components/shared/Skeleton'
+import { StretchIllustration } from '@/components/shared/StretchIllustration'
 import { TodayProgress } from '@/components/shared/TodayProgress'
 import { Button } from '@/components/ui/button'
 import { HOME_DATA } from '@/mocks/home'
@@ -267,6 +268,20 @@ function StatesSection() {
   )
 }
 
+function IllustrationSection() {
+  return (
+    <Section id="illustration" title="איור" description="קו אחיד של 2px, דיו ב-currentColor ומבטא אחד ב-brand. דקורטיבי בלבד (aria-hidden), מתאים לרוחב 120–320px.">
+      <ModePair>
+        <div className="flex flex-wrap items-end gap-6">
+          <StretchIllustration className="w-30" />
+          <StretchIllustration className="w-52" />
+          <StretchIllustration className="w-80 max-w-full" />
+        </div>
+      </ModePair>
+    </Section>
+  )
+}
+
 export default function DesignPage() {
   return (
     <div className="flex flex-col gap-12">
@@ -278,6 +293,7 @@ export default function DesignPage() {
       <TypographySection />
       <ShapeSection />
       <ButtonSection />
+      <IllustrationSection />
       <ProgressSection />
       <HeatmapSection />
       <CardSection />

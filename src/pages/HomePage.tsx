@@ -8,6 +8,7 @@ import { Heatmap } from '@/components/shared/Heatmap'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { ProgressRing } from '@/components/shared/ProgressRing'
 import { Skeleton } from '@/components/shared/Skeleton'
+import { StretchIllustration } from '@/components/shared/StretchIllustration'
 import { TodayProgress } from '@/components/shared/TodayProgress'
 import { Button } from '@/components/ui/button'
 import type { HomeData } from '@/mocks/home'
@@ -83,9 +84,12 @@ function Hero({ data }: { data: HomeData }) {
 function HomeContent({ data }: { data: HomeData }) {
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <p className="text-muted-foreground">הנה השבוע שלך, בקצרה</p>
-        <h2 className="text-3xl md:text-4xl">בוקר טוב, {data.name}</h2>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-muted-foreground">הנה השבוע שלך, בקצרה</p>
+          <h2 className="text-3xl md:text-4xl">בוקר טוב, {data.name}</h2>
+        </div>
+        <StretchIllustration className="w-28 shrink-0 text-foreground/80 md:w-48" />
       </div>
 
       <Hero data={data} />
