@@ -1,0 +1,14 @@
+---
+description: 7ZUZ project rules
+alwaysApply: true
+---
+
+# 7ZUZ project rules
+
+- The UI is Hebrew, RTL by default. Use logical properties (`ms-`/`me-`, `ps-`/`pe-`, `text-start`) instead of left/right.
+- Never hardcode colors or fonts. Use only design tokens (CSS variables / Tailwind theme) and shadcn components.
+- Every screen has loading (skeleton), empty and error states.
+- Minimum touch target 44px, visible focus, WCAG AA contrast, mobile-first.
+- Never put secrets in front-end code. Secrets live only in environment variables, and `.env` files are git-ignored.
+- Keep components small, typed and reusable. No dead code, no TODO placeholders in finished work.
+- Do not install new dependencies without stating why.
