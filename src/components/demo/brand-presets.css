@@ -1,0 +1,21 @@
+/* DEMO ONLY — sample company brand colors for the "Preview as company" switcher.
+   Deleted together with this folder. Each preset only overrides --brand. */
+html[data-brand='violet'],
+[data-brand-dot='violet'] {
+    --brand: oklch(0.55 0.2 295);
+}
+html[data-brand='red'],
+[data-brand-dot='red'] {
+    --brand: oklch(0.58 0.2 25);
+}
+html[data-brand='teal'],
+[data-brand-dot='teal'] {
+    --brand: oklch(0.62 0.12 190);
+}
+html[data-brand='orange'],
+[data-brand-dot='orange'] {
+    --brand: oklch(0.7 0.17 55);
+}
+[data-brand-dot='default'] {
+    --brand: var(--chart-4);
+}
