@@ -1,4 +1,5 @@
 import { Bell, Dumbbell, Play, Quote } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
 import { Badge } from '@/components/shared/Badge'
 import { Card, CardHeader } from '@/components/shared/Card'
@@ -12,7 +13,10 @@ import { StretchIllustration } from '@/components/shared/StretchIllustration'
 import { TodayProgress } from '@/components/shared/TodayProgress'
 import { Button } from '@/components/ui/button'
 import type { HomeData } from '@/mocks/home'
+import { getTodaysWorkoutId } from '@/mocks/todaysWorkout'
 import { useMockHome } from '@/mocks/useMockHome'
+
+const startPath = `/workouts/${getTodaysWorkoutId()}`
 
 function HomeSkeleton() {
   return (
@@ -71,7 +75,7 @@ function Hero({ data }: { data: HomeData }) {
             max={data.monthGoal}
             tone="primary"
           />
-          <Button variant="brand" size="lg" className="self-start">
+          <Button variant="brand" size="lg" className="self-start" render={<Link to={startPath} />}>
             <Play />
             התחלת אימון
           </Button>
@@ -132,7 +136,7 @@ export default function HomePage() {
         title="עוד לא התחלת להתאמן"
         description="האימון הראשון לוקח שתי דקות. אחריו תראו כאן את ההתקדמות שלכם."
         action={
-          <Button variant="brand" size="lg">
+          <Button variant="brand" size="lg" render={<Link to={startPath} />}>
             <Play />
             התחלת אימון ראשון
           </Button>

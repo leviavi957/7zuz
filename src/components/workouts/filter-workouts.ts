@@ -1,3 +1,4 @@
+import { getWorkoutSeconds } from '@/mocks/workoutSteps'
 import type { Workout } from '@/mocks/workouts'
 import type { CategoryFilter } from './CategoryChips'
 import type { SortKey } from './SortSelect'
@@ -10,7 +11,7 @@ interface Criteria {
 
 const comparators: Record<SortKey, (a: Workout, b: Workout) => number> = {
   newest: (a, b) => b.createdAt.localeCompare(a.createdAt),
-  shortest: (a, b) => a.durationMinutes - b.durationMinutes,
+  shortest: (a, b) => getWorkoutSeconds(a) - getWorkoutSeconds(b),
   mostDone: (a, b) => b.timesCompleted - a.timesCompleted,
 }
 

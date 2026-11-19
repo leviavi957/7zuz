@@ -2,6 +2,8 @@ import { Check, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Badge, type BadgeVariant } from '@/components/shared/Badge'
 import { Card } from '@/components/shared/Card'
+import { formatMinutes } from '@/lib/workoutTimeline'
+import { getWorkoutSeconds } from '@/mocks/workoutSteps'
 import {
   CATEGORY_LABELS,
   DIFFICULTY_LABELS,
@@ -17,7 +19,7 @@ const difficultyVariant: Record<WorkoutDifficulty, BadgeVariant> = {
 }
 
 export function WorkoutCard({ workout }: { workout: Workout }) {
-  const { id, title, description, category, difficulty, durationMinutes, timesCompleted } = workout
+  const { id, title, description, category, difficulty, timesCompleted } = workout
 
   return (
     <Link
@@ -43,7 +45,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
           </div>
           <p className="mt-auto flex items-center gap-1.5 text-sm font-medium">
             <Clock className="size-4 text-brand-ink" aria-hidden="true" />
-            {durationMinutes} דק&apos;
+            {formatMinutes(getWorkoutSeconds(workout))} דק&apos;
           </p>
         </div>
       </Card>

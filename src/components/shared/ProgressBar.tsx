@@ -18,6 +18,8 @@ interface ProgressBarProps {
   valueText?: string
   /** Render as N discrete segments (streak bar). */
   segments?: number
+  /** Slim bar; the label stays available to screen readers only. */
+  compact?: boolean
   tone?: BarTone
   className?: string
 }
@@ -28,6 +30,7 @@ export function ProgressBar({
   label,
   valueText,
   segments,
+  compact = false,
   tone = 'brand',
   className,
 }: ProgressBarProps) {
@@ -44,7 +47,7 @@ export function ProgressBar({
       aria-valuetext={valueText}
       className={cn('w-full', className)}
     >
-      <div className="mb-2 flex items-baseline justify-between gap-3">
+      <div className={cn('mb-2 flex items-baseline justify-between gap-3', compact && 'sr-only')}>
         <span className="text-sm font-medium">{label}</span>
         {valueText ? <span className="text-sm text-muted-foreground">{valueText}</span> : null}
       </div>
@@ -62,7 +65,7 @@ export function ProgressBar({
           ))}
         </div>
       ) : (
-        <div className="h-3 overflow-hidden rounded-full bg-track" aria-hidden="true">
+        <div className={cn('overflow-hidden rounded-full bg-track', compact ? 'h-1.5' : 'h-3')} aria-hidden="true">
           <div
             style={{ width: `${(ready ? fraction : 0) * 100}%` }}
             className={cn(

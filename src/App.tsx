@@ -6,6 +6,8 @@ import HomePage from '@/pages/HomePage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
 import WorkoutDetailPage from '@/pages/WorkoutDetailPage'
+import WorkoutFeedbackPage from '@/pages/WorkoutFeedbackPage'
+import WorkoutPlayerPage from '@/pages/WorkoutPlayerPage'
 import WorkoutsPage from '@/pages/WorkoutsPage'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 
@@ -16,10 +18,13 @@ export default function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
+          {/* The player is full-screen, so it lives outside the app shell. */}
+          <Route path="workouts/:id/play" element={<WorkoutPlayerPage />} />
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
             <Route path="workouts" element={<WorkoutsPage />} />
             <Route path="workouts/:id" element={<WorkoutDetailPage />} />
+            <Route path="workouts/:id/feedback" element={<WorkoutFeedbackPage />} />
             {PLACEHOLDER_ITEMS.map(({ to, icon, label }) => (
               <Route key={to} path={to} element={<PlaceholderPage icon={icon} title={label} />} />
             ))}

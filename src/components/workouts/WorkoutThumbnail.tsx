@@ -68,9 +68,11 @@ function Composition({ category }: { category: WorkoutCategory }) {
 export function WorkoutThumbnail({
   category,
   className,
+  showPlay = true,
 }: {
   category: WorkoutCategory
   className?: string
+  showPlay?: boolean
 }) {
   return (
     <div
@@ -80,9 +82,11 @@ export function WorkoutThumbnail({
       <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" className="size-full">
         <Composition category={category} />
       </svg>
+      {showPlay ? (
       <span className="absolute bottom-3 start-3 flex size-9 items-center justify-center rounded-full bg-brand-solid text-brand-solid-foreground shadow-soft">
         <Play className="size-4" />
       </span>
+      ) : null}
     </div>
   )
 }
