@@ -1,10 +1,14 @@
 import { Dumbbell } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { PreWorkoutDialog } from '@/components/preworkout/PreWorkoutDialog'
 import { WorkoutPlayer } from '@/components/player/WorkoutPlayer'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
+import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
 import { Skeleton } from '@/components/shared/Skeleton'
 import { Button } from '@/components/ui/button'
+import { needsQuestionnaire } from '@/lib/preWorkout'
 import { useMockWorkout } from '@/mocks/useMockWorkout'
 
 function PlayerFrame({ children }: { children: React.ReactNode }) {
@@ -18,6 +22,9 @@ function PlayerFrame({ children }: { children: React.ReactNode }) {
 export default function WorkoutPlayerPage() {
   const { id } = useParams()
   const { status, workout, retry } = useMockWorkout(id)
+  const navigate = useNavigate()
+  // The workout starts only after the health check is confirmed.
+  const [confirmed, setConfirmed] = useState(() => !needsQuestionnaire())
   const back = (
     <Button variant="outline" render={<Link to={`/workouts/${id ?? ''}`} />}>
       חזרה לאימון
@@ -58,6 +65,19 @@ export default function WorkoutPlayerPage() {
           }
         />
       </PlayerFrame>
+    )
+  }
+
+  if (!confirmed) {
+    return (
+      <div className="fixed inset-0 isolate bg-background">
+        <BackgroundShapes />
+        <PreWorkoutDialog
+          workoutTitle={workout.title}
+          onCancel={() => navigate(`/workouts/${workout.id}`, { replace: true })}
+          onConfirm={() => setConfirmed(true)}
+        />
+      </div>
     )
   }
 
