@@ -1,5 +1,5 @@
 import { Dumbbell } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PreWorkoutDialog } from '@/components/preworkout/PreWorkoutDialog'
 import { WorkoutPlayer } from '@/components/player/WorkoutPlayer'
@@ -23,15 +23,28 @@ export default function WorkoutPlayerPage() {
   const { id } = useParams()
   const { status, workout, retry } = useMockWorkout(id)
   const navigate = useNavigate()
-  // The workout starts only after the health check is confirmed.
-  const [confirmed, setConfirmed] = useState(() => !needsQuestionnaire())
+  // The workout starts only once the health check is passed: still valid, or just completed.
+  const [gate, setGate] = useState<'checking' | 'required' | 'passed'>('checking')
+
+  useEffect(() => {
+    let cancelled = false
+    needsQuestionnaire()
+      .catch(() => true)
+      .then((needed) => {
+        if (!cancelled) setGate(needed ? 'required' : 'passed')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const back = (
     <Button variant="outline" render={<Link to={`/workouts/${id ?? ''}`} />}>
       חזרה לאימון
     </Button>
   )
 
-  if (status === 'loading') {
+  if (status === 'loading' || gate === 'checking') {
     return (
       <PlayerFrame>
         <div role="status" aria-busy="true" aria-label="טוען אימון" className="flex flex-col items-center gap-4">
@@ -68,14 +81,14 @@ export default function WorkoutPlayerPage() {
     )
   }
 
-  if (!confirmed) {
+  if (gate === 'required') {
     return (
       <div className="fixed inset-0 isolate bg-background">
         <BackgroundShapes />
         <PreWorkoutDialog
           workoutTitle={workout.title}
           onCancel={() => navigate(`/workouts/${workout.id}`, { replace: true })}
-          onConfirm={() => setConfirmed(true)}
+          onComplete={() => setGate('passed')}
         />
       </div>
     )

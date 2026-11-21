@@ -1,6 +1,7 @@
 import { Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { PRE_WORKOUT_COPY } from '@/content/preWorkoutCopy'
 
 /**
  * One-tap start. Sticky above the bottom nav on phones; inline and prominent
@@ -18,9 +19,7 @@ export function StartBar({ workoutId }: { workoutId: string }) {
         <Play />
         התחלת אימון
       </Button>
-      <p className="mt-2 text-xs text-muted-foreground">
-        האימון מתאים למי שמילא את שאלון הבריאות. במקרה של כאב או סחרחורת, הפסק.
-      </p>
+      <p className="mt-2 text-xs text-muted-foreground">{PRE_WORKOUT_COPY.startBarSafetyLine}</p>
     </div>
   )
 }

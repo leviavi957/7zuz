@@ -1,44 +1,30 @@
-/**
- * Pre-workout health check. The wording below is a working draft: the
- * questions and the disclaimer must be reviewed and approved by the client
- * (and legal / a medical professional) before launch.
- */
+import { acceptanceStore, type Acceptance } from '@/lib/acceptanceStore'
 
-export interface HealthQuestion {
-  id: string
-  text: string
+/**
+ * Current version of the questionnaire and declaration wording. Raise it when
+ * the wording changes in substance: everyone is then asked again.
+ */
+export const QUESTIONNAIRE_VERSION = 1
+
+/** An acceptance older than this many days has to be given again. */
+export const ACCEPTANCE_MAX_AGE_DAYS = 90
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+/** True when the stored acceptance is for the current version and recent enough. */
+export function isAcceptanceValid(acceptance: Acceptance | null, now: Date = new Date()): boolean {
+  if (!acceptance || acceptance.version < QUESTIONNAIRE_VERSION) return false
+  const age = now.getTime() - new Date(acceptance.acceptedAt).getTime()
+  // An unreadable or future timestamp is not trusted.
+  return Number.isFinite(age) && age >= 0 && age <= ACCEPTANCE_MAX_AGE_DAYS * DAY_MS
 }
 
-export const HEALTH_QUESTIONS: HealthQuestion[] = [
-  {
-    id: 'doctor',
-    text: 'האם רופא אמר לך שיש לך בעיית לב, או שעליך להימנע מפעילות גופנית?',
-  },
-  {
-    id: 'symptoms',
-    text: 'האם את/ה חש/ה כאב בחזה, קוצר נשימה חריג או סחרחורת בזמן מאמץ?',
-  },
-  {
-    id: 'pain',
-    text: 'האם יש לך כאב או פציעה (גב, צוואר, מפרקים) שתנועה עלולה להחמיר?',
-  },
-  {
-    id: 'condition',
-    text: 'האם את/ה בהיריון, אחרי ניתוח לאחרונה, או נוטל/ת תרופות שמשפיעות על מאמץ?',
-  },
-]
+/** Whether the questionnaire must be shown before the next workout. */
+export async function needsQuestionnaire(): Promise<boolean> {
+  return !isAcceptanceValid(await acceptanceStore.get())
+}
 
-export const SAFETY_REMINDERS: string[] = [
-  'הפסק/י מיד אם מופיע כאב בחזה, קוצר נשימה או סחרחורת.',
-  'האפליקציה אינה תחליף לייעוץ רפואי. האחריות על ביצוע האימון היא שלך.',
-  'כדאי לשתות מים לפני האימון ואחריו.',
-]
-
-/**
- * When to ask. For now: before every workout, so the screen is easy to
- * review. Refine here later (for example once per period) without touching
- * the screens.
- */
-export function needsQuestionnaire(): boolean {
-  return true
+/** Records an acceptance of the current questionnaire version, as of now. */
+export async function recordAcceptance(): Promise<void> {
+  await acceptanceStore.save({ acceptedAt: new Date().toISOString(), version: QUESTIONNAIRE_VERSION })
 }

@@ -6,6 +6,8 @@ export interface Reminder {
   /** Days of the week, 0 = Sunday. */
   days: number[]
   enabled: boolean
+  /** ISO time of the last notification, so one reminder fires once per day. */
+  lastFiredAt?: string
 }
 
 export const DAYS: { value: number; short: string; long: string }[] = [
@@ -51,6 +53,7 @@ function isReminder(value: unknown): value is Reminder {
     typeof item.id === 'string' &&
     typeof item.time === 'string' &&
     typeof item.enabled === 'boolean' &&
+    (item.lastFiredAt === undefined || typeof item.lastFiredAt === 'string') &&
     Array.isArray(item.days) &&
     item.days.every((day) => typeof day === 'number')
   )
@@ -70,12 +73,34 @@ export function saveReminders(reminders: Reminder[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders))
 }
 
-export function formatClock(date: Date): string {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+/** A reminder still fires this long after its time (background tabs run timers late). */
+export const CATCH_UP_WINDOW_MINUTES = 10
+
+function scheduledToday(reminder: Reminder, now: Date): Date | null {
+  const [hours, minutes] = reminder.time.split(':').map(Number)
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null
+  const scheduled = new Date(now)
+  scheduled.setHours(hours, minutes, 0, 0)
+  return scheduled
 }
 
-export function isDue(reminder: Reminder, now: Date): boolean {
+function firedToday(reminder: Reminder, now: Date): boolean {
   return (
-    reminder.enabled && reminder.days.includes(now.getDay()) && reminder.time === formatClock(now)
+    reminder.lastFiredAt !== undefined &&
+    new Date(reminder.lastFiredAt).toDateString() === now.toDateString()
   )
+}
+
+/**
+ * Due when enabled, active today, its time has passed by no more than the
+ * catch-up window, and it has not already fired today.
+ */
+export function isDue(reminder: Reminder, now: Date): boolean {
+  if (!reminder.enabled || !reminder.days.includes(now.getDay()) || firedToday(reminder, now)) {
+    return false
+  }
+  const scheduled = scheduledToday(reminder, now)
+  if (!scheduled) return false
+  const lateMs = now.getTime() - scheduled.getTime()
+  return lateMs >= 0 && lateMs <= CATCH_UP_WINDOW_MINUTES * 60_000
 }

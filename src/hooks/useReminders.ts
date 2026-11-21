@@ -29,11 +29,10 @@ export function useReminders() {
   }, [])
 
   const commit = useCallback((update: (current: Reminder[]) => Reminder[]) => {
-    setReminders((current) => {
-      const next = sortReminders(update(current))
-      saveReminders(next)
-      return next
-    })
+    // Start from storage, not from state: the scheduler records `lastFiredAt` there.
+    const next = sortReminders(update(loadReminders()))
+    saveReminders(next)
+    setReminders(next)
   }, [])
 
   const add = useCallback(
@@ -58,7 +57,14 @@ export function useReminders() {
 
   const update = useCallback(
     (id: string, changes: Partial<Omit<Reminder, 'id'>>) =>
-      commit((current) => current.map((item) => (item.id === id ? { ...item, ...changes } : item))),
+      commit((current) =>
+        current.map((item) => {
+          if (item.id !== id) return item
+          // A new time or new days start a fresh schedule.
+          const rescheduled = changes.time !== undefined || changes.days !== undefined
+          return { ...item, ...changes, lastFiredAt: rescheduled ? undefined : item.lastFiredAt }
+        }),
+      ),
     [commit],
   )
 
