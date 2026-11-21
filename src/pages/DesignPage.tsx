@@ -1,6 +1,7 @@
 import { Bell, Dumbbell, Play, RotateCw } from 'lucide-react'
 import { useState } from 'react'
 import { Badge, type BadgeVariant } from '@/components/shared/Badge'
+import { BasadMark } from '@/components/shared/BasadMark'
 import { Card, CardHeader } from '@/components/shared/Card'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
@@ -282,6 +283,20 @@ function IllustrationSection() {
   )
 }
 
+function BasadSection() {
+  return (
+    <Section
+      id="basad"
+      title="בס״ד"
+      description="בפינה העליונה של כל עמוד, בצד ההתחלה (ימין ב-RTL). קטן, שקט, צבע muted-foreground, עם גרשיים טיפוגרפיים. במנגן הוא נעלם יחד עם הבקרים, ולא מופיע בתוך חלונות דו-שיח."
+    >
+      <ModePair>
+        <BasadMark />
+      </ModePair>
+    </Section>
+  )
+}
+
 export default function DesignPage() {
   return (
     <div className="flex flex-col gap-12">
@@ -294,6 +309,7 @@ export default function DesignPage() {
       <ShapeSection />
       <ButtonSection />
       <IllustrationSection />
+      <BasadSection />
       <ProgressSection />
       <HeatmapSection />
       <CardSection />

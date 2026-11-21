@@ -1,7 +1,7 @@
-import { Bell, Dumbbell, Play, Quote } from 'lucide-react'
+import { Dumbbell, Play, Quote } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { NextReminder } from '@/components/reminders/NextReminder'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
-import { Badge } from '@/components/shared/Badge'
 import { Card, CardHeader } from '@/components/shared/Card'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
@@ -101,10 +101,7 @@ function HomeContent({ data }: { data: HomeData }) {
       <div className="grid gap-5 md:grid-cols-2">
         <Card className="flex flex-col justify-between gap-4">
           <TodayProgress done={data.todayDone} total={data.todayTotal} />
-          <Badge variant="brand" className="self-start">
-            <Bell className="size-3.5" aria-hidden="true" />
-            התזכורת הבאה {data.nextReminder}
-          </Badge>
+          <NextReminder />
         </Card>
         <Card tone="sage" className="flex flex-col gap-3">
           <Quote className="size-6 text-sage-ink" aria-hidden="true" />

@@ -19,9 +19,11 @@ export function useNotificationPermission() {
     return () => window.removeEventListener('focus', refresh)
   }, [])
 
-  const request = useCallback(async () => {
-    if (typeof Notification === 'undefined') return
-    setAccess(await Notification.requestPermission())
+  const request = useCallback(async (): Promise<NotificationAccess> => {
+    if (typeof Notification === 'undefined') return 'unsupported'
+    const result = await Notification.requestPermission()
+    setAccess(result)
+    return result
   }, [])
 
   return { access, request }

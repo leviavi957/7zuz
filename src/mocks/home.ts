@@ -10,7 +10,6 @@ export interface HomeData {
   monthGoal: number
   todayDone: number
   todayTotal: number
-  nextReminder: string
   tip: string
   heat: HeatLevel[]
   todayIndex: number
@@ -39,7 +38,6 @@ export const HOME_DATA: HomeData = {
   monthGoal: 20,
   todayDone: 2,
   todayTotal: 3,
-  nextReminder: '10:30',
   tip: 'גוף חכם הוא גוף שזז. שתי דקות עכשיו שוות שעה של פוקוס.',
   heat: buildHeat(),
   todayIndex: TODAY_INDEX,

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sheet'
 import type { ReminderDraft } from '@/hooks/useReminders'
 import { DEFAULT_TIME, WORKDAYS, type Reminder } from '@/lib/reminders'
+import { TimePicker } from '@/components/shared/TimePicker'
 import { DayPicker } from './DayPicker'
 
 interface ReminderFormProps {
@@ -19,23 +20,14 @@ interface ReminderFormProps {
 }
 
 function ReminderForm({ reminder, onSave, onDelete }: ReminderFormProps) {
-  const [time, setTime] = useState(reminder?.time ?? DEFAULT_TIME)
+  const [time, setTime] = useState<string | null>(reminder?.time ?? DEFAULT_TIME)
   const [days, setDays] = useState(reminder?.days ?? WORKDAYS)
-  const valid = time !== '' && days.length > 0
+  const valid = time !== null && days.length > 0
 
   return (
     <>
       <div className="flex flex-col gap-5 px-4">
-        <label className="flex flex-col gap-2">
-          <span className="font-medium">שעה</span>
-          <input
-            type="time"
-            dir="ltr"
-            value={time}
-            onChange={(event) => setTime(event.target.value)}
-            className="numeral h-14 w-full rounded-2xl border bg-card px-4 text-start text-3xl outline-none focus-visible:ring-3 focus-visible:ring-ring"
-          />
-        </label>
+        <TimePicker label="שעה" defaultValue={reminder?.time ?? DEFAULT_TIME} onChange={setTime} />
         <div className="flex flex-col gap-2">
           <span className="font-medium">ימים</span>
           <DayPicker value={days} onChange={setDays} />
@@ -47,7 +39,7 @@ function ReminderForm({ reminder, onSave, onDelete }: ReminderFormProps) {
         </div>
       </div>
       <SheetFooter className="pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button variant="brand" size="lg" disabled={!valid} onClick={() => onSave({ time, days })}>
+        <Button variant="brand" size="lg" disabled={!valid} onClick={() => time !== null && onSave({ time, days })}>
           שמירה
         </Button>
         {onDelete ? (

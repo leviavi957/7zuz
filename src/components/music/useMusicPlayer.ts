@@ -31,6 +31,10 @@ export interface MusicPlayer {
   enabled: boolean
   /** 0-100. */
   volume: number
+  /** True when the browser blocked autoplay: start then needs a tap. */
+  blocked: boolean
+  /** Retries playback from a user gesture. */
+  start: () => void
   toggle: () => void
   setVolume: (volume: number) => void
 }
@@ -52,6 +56,7 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
   const [volume, setVolume] = usePersistentNumber('7zuz.music.volume', MUSIC.defaultVolume)
   const [failedSrc, setFailedSrc] = useState<string>()
   const [gestureRetry, setGestureRetry] = useState(0)
+  const [blocked, setBlocked] = useState(false)
   const hidden = useSyncExternalStore(subscribeVisibility, isTabHidden)
 
   const available = Boolean(src) && failedSrc !== src
@@ -102,12 +107,14 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
       .play()
       .then(() => {
         startedRef.current = true
+        setBlocked(false)
         cancelFadeRef.current?.()
         cancelFadeRef.current = fadeAudio(audio, level, fadeMs)
       })
       .catch((error: unknown) => {
         // Autoplay was blocked (for example a direct page load): retry on the next gesture.
         if (error instanceof DOMException && error.name === 'NotAllowedError') {
+          setBlocked(true)
           const retry = () => setGestureRetry((count) => count + 1)
           document.addEventListener('pointerdown', retry, { once: true })
           document.addEventListener('keydown', retry, { once: true })
@@ -117,5 +124,7 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
 
   const toggle = useCallback(() => setEnabled(!enabled), [enabled, setEnabled])
 
-  return { available, enabled, volume, toggle, setVolume }
+  const start = useCallback(() => setGestureRetry((count) => count + 1), [])
+
+  return { available, enabled, volume, blocked, start, toggle, setVolume }
 }

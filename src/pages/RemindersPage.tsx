@@ -1,22 +1,43 @@
 import { Bell, Plus, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { NotificationBanner } from '@/components/reminders/NotificationBanner'
+import { NotificationHelp } from '@/components/reminders/NotificationHelp'
+import { SoundSetting } from '@/components/reminders/SoundSetting'
+import { TestNotifications } from '@/components/reminders/TestNotifications'
 import { ReminderRow, ReminderRowSkeleton } from '@/components/reminders/ReminderRow'
 import { ReminderSheet } from '@/components/reminders/ReminderSheet'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { Button } from '@/components/ui/button'
 import { useNotificationPermission } from '@/hooks/useNotificationPermission'
+import { useNextReminder } from '@/hooks/useNextReminder'
 import { useReminders, type ReminderDraft } from '@/hooks/useReminders'
+import { describeNextReminder, type NextReminder } from '@/lib/reminders'
 
 /** `null` = closed, `'new'` = creating, otherwise the id being edited. */
 type SheetTarget = null | 'new' | string
+
+function NextReminderLine({ next }: { next: NextReminder }) {
+  const { day, time } = describeNextReminder(next)
+  return (
+    <p className="flex items-center gap-2 font-medium">
+      <Bell className="size-5 text-brand-ink" aria-hidden="true" />
+      <span>
+        התזכורת הבאה: {day}{' '}
+        <span dir="ltr" className="numeral inline-block">
+          {time}
+        </span>
+      </span>
+    </p>
+  )
+}
 
 export default function RemindersPage() {
   const { status, reminders, add, addRecommended, update, remove, retry } = useReminders()
   const { access, request } = useNotificationPermission()
   const [sheet, setSheet] = useState<SheetTarget>(null)
 
+  const next = useNextReminder(reminders)
   const editing = reminders.find((item) => item.id === sheet)
   const close = () => setSheet(null)
 
@@ -51,6 +72,8 @@ export default function RemindersPage() {
       ) : (
         <>
           <NotificationBanner access={access} onEnable={request} />
+
+          {status === 'ready' && next ? <NextReminderLine next={next} /> : null}
 
           {status === 'loading' ? (
             <div role="status" aria-busy="true" aria-label="טוען תזכורות" className="flex flex-col gap-3">
@@ -91,8 +114,12 @@ export default function RemindersPage() {
           )}
 
           <p className="text-sm text-muted-foreground">
-            התזכורות מופיעות כל עוד האפליקציה פתוחה בדפדפן.
+            התזכורות מופיעות כל עוד האפליקציה פתוחה בדפדפן, גם בלשונית אחרת. ההתראה והצליל תלויים
+            בהגדרות ההתראות של המכשיר.
           </p>
+          <SoundSetting />
+          <TestNotifications request={request} />
+          <NotificationHelp />
         </>
       )}
 

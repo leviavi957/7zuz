@@ -1,6 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { NAV_ITEMS } from '@/components/layout/nav-items'
+import { Toaster } from '@/components/shared/Toaster'
+import { NotificationNavigation } from '@/components/reminders/NotificationNavigation'
 import { ReminderScheduler } from '@/components/reminders/ReminderScheduler'
 import DesignPage from '@/pages/DesignPage'
 import HomePage from '@/pages/HomePage'
@@ -19,7 +21,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <ReminderScheduler />
+      <Toaster />
       <BrowserRouter>
+        <NotificationNavigation />
         <Routes>
           {/* The player is full-screen, so it lives outside the app shell. */}
           <Route path="workouts/:id/play" element={<WorkoutPlayerPage />} />

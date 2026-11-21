@@ -6,6 +6,7 @@ import { WorkoutPlayer } from '@/components/player/WorkoutPlayer'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
+import { BasadMark } from '@/components/shared/BasadMark'
 import { Skeleton } from '@/components/shared/Skeleton'
 import { Button } from '@/components/ui/button'
 import { needsQuestionnaire } from '@/lib/preWorkout'
@@ -14,6 +15,7 @@ import { useMockWorkout } from '@/mocks/useMockWorkout'
 function PlayerFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-y-auto bg-background p-4">
+      <BasadMark className="absolute start-4 top-3" />
       <div className="flex w-full max-w-md flex-col gap-4">{children}</div>
     </div>
   )
@@ -85,6 +87,7 @@ export default function WorkoutPlayerPage() {
     return (
       <div className="fixed inset-0 isolate bg-background">
         <BackgroundShapes />
+        <BasadMark className="absolute start-4 top-3" />
         <PreWorkoutDialog
           workoutTitle={workout.title}
           onCancel={() => navigate(`/workouts/${workout.id}`, { replace: true })}

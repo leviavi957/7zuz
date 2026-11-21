@@ -39,7 +39,7 @@ export function PreWorkoutDialog({ workoutTitle, onCancel, onComplete }: PreWork
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim pt-9 sm:items-center sm:p-4"
       onKeyDown={onKeyDown}
     >
       <div

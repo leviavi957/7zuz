@@ -1,8 +1,9 @@
-import { Maximize, Minimize, X } from 'lucide-react'
+import { Maximize, Minimize, Music, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMusicPlayer } from '@/components/music/useMusicPlayer'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
+import { BasadMark } from '@/components/shared/BasadMark'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -122,31 +123,37 @@ export function WorkoutPlayer({ workout }: { workout: Workout }) {
         className="absolute inset-x-0 top-0 z-10"
       />
 
-      <IdleFade
-        visible={controls.visible}
-        className="col-start-1 row-start-1 flex items-center justify-between gap-2"
-      >
-        <div className="flex min-w-0 items-center gap-2">
-          <Button variant="secondary" size="icon" aria-label="יציאה מהאימון" onClick={openExit}>
-            <X />
-          </Button>
-          <p className="truncate rounded-full bg-card px-4 py-2 text-sm font-medium shadow-soft">
-            {workout.title}
-          </p>
+      <IdleFade visible={controls.visible} className="col-start-1 row-start-1 flex flex-col gap-1.5">
+        <BasadMark />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button variant="secondary" size="icon" aria-label="יציאה מהאימון" onClick={openExit}>
+              <X />
+            </Button>
+            <p className="truncate rounded-full bg-card px-4 py-2 text-sm font-medium shadow-soft">
+              {workout.title}
+            </p>
+          </div>
+          {fullscreen.supported ? (
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label={fs ? 'יציאה ממסך מלא' : 'מסך מלא'}
+              onClick={fullscreen.toggle}
+            >
+              {fs ? <Minimize /> : <Maximize />}
+            </Button>
+          ) : null}
         </div>
-        {fullscreen.supported ? (
-          <Button
-            variant="secondary"
-            size="icon"
-            aria-label={fs ? 'יציאה ממסך מלא' : 'מסך מלא'}
-            onClick={fullscreen.toggle}
-          >
-            {fs ? <Minimize /> : <Maximize />}
-          </Button>
-        ) : null}
       </IdleFade>
 
       <div className="col-start-1 row-start-3 flex min-h-0 flex-col gap-3 landscape:min-[40rem]:col-start-2 landscape:min-[40rem]:row-span-2 landscape:min-[40rem]:row-start-1 landscape:min-[40rem]:justify-end">
+        {music.available && music.enabled && music.blocked ? (
+          <Button variant="secondary" className="self-start" onClick={music.start}>
+            <Music />
+            הפעלת מוזיקה
+          </Button>
+        ) : null}
         <PlayerHud
           step={step}
           remainingSeconds={playback.remainingSeconds}

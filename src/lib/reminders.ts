@@ -20,6 +20,7 @@ export const DAYS: { value: number; short: string; long: string }[] = [
   { value: 6, short: 'ש׳', long: 'שבת' },
 ]
 
+/** The Israeli work week: Sunday to Thursday. Friday is optional, Saturday is off by default. */
 export const WORKDAYS = [0, 1, 2, 3, 4]
 const EVERY_DAY = [0, 1, 2, 3, 4, 5, 6]
 
@@ -46,12 +47,15 @@ export function sortReminders(reminders: Reminder[]): Reminder[] {
   return [...reminders].sort((a, b) => a.time.localeCompare(b.time))
 }
 
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+
 function isReminder(value: unknown): value is Reminder {
   if (typeof value !== 'object' || value === null) return false
   const item = value as Record<string, unknown>
   return (
     typeof item.id === 'string' &&
     typeof item.time === 'string' &&
+    TIME_PATTERN.test(item.time) &&
     typeof item.enabled === 'boolean' &&
     (item.lastFiredAt === undefined || typeof item.lastFiredAt === 'string') &&
     Array.isArray(item.days) &&
@@ -103,4 +107,42 @@ export function isDue(reminder: Reminder, now: Date): boolean {
   if (!scheduled) return false
   const lateMs = now.getTime() - scheduled.getTime()
   return lateMs >= 0 && lateMs <= CATCH_UP_WINDOW_MINUTES * 60_000
+}
+export interface NextReminder {
+  reminder: Reminder
+  /** The moment it will fire. */
+  at: Date
+  /** 0 = today, 1 = tomorrow, and so on (at most 7). */
+  dayOffset: number
+}
+
+/**
+ * The upcoming reminder after `now`: among enabled reminders, the earliest
+ * time on one of their active days within the next week. `null` when none.
+ */
+export function getNextReminder(reminders: Reminder[], now: Date): NextReminder | null {
+  let best: NextReminder | null = null
+  for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
+    const day = new Date(now)
+    day.setDate(day.getDate() + dayOffset)
+    for (const reminder of reminders) {
+      if (!reminder.enabled || !reminder.days.includes(day.getDay())) continue
+      const at = scheduledToday(reminder, day)
+      if (!at || at.getTime() <= now.getTime()) continue
+      if (!best || at.getTime() < best.at.getTime()) best = { reminder, at, dayOffset }
+    }
+    // Days are visited in order, so the first day with a match holds the earliest one.
+    if (best) return best
+  }
+  return null
+}
+
+/** "היום", "מחר" or "ביום ראשון", plus the 24-hour "HH:mm" time. */
+export function describeNextReminder({ at, dayOffset, reminder }: NextReminder): {
+  day: string
+  time: string
+} {
+  const weekday = DAYS.find(({ value }) => value === at.getDay())?.long ?? ''
+  const day = dayOffset === 0 ? 'היום' : dayOffset === 1 ? 'מחר' : `ביום ${weekday}`
+  return { day, time: reminder.time }
 }
