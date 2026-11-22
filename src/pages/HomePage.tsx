@@ -1,5 +1,6 @@
 import { Dumbbell, Play, Quote } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { PromisDueBanner } from '@/components/home/PromisDueBanner'
 import { NextReminder } from '@/components/reminders/NextReminder'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
 import { Card, CardHeader } from '@/components/shared/Card'
@@ -97,6 +98,8 @@ function HomeContent({ data }: { data: HomeData }) {
       </div>
 
       <Hero data={data} />
+
+      <PromisDueBanner />
 
       <div className="grid gap-5 md:grid-cols-2">
         <Card className="flex flex-col justify-between gap-4">

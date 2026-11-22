@@ -12,6 +12,8 @@ interface HealthQuestionnaireProps {
   onCancel?: () => void
   /** Optional line under the title, for example the workout name. */
   subtitle?: string
+  /** Override for the confirm button; defaults to the pre-workout wording. */
+  confirmLabel?: string
 }
 
 /**
@@ -19,7 +21,12 @@ interface HealthQuestionnaireProps {
  * surrounding container, so it can sit in a dialog now and be an onboarding
  * step later. It records the acceptance itself.
  */
-export function HealthQuestionnaire({ onComplete, onCancel, subtitle }: HealthQuestionnaireProps) {
+export function HealthQuestionnaire({
+  onComplete,
+  onCancel,
+  subtitle,
+  confirmLabel = PRE_WORKOUT_COPY.confirm,
+}: HealthQuestionnaireProps) {
   const [answers, setAnswers] = useState<Record<string, boolean>>({})
   const [declared, setDeclared] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -94,7 +101,7 @@ export function HealthQuestionnaire({ onComplete, onCancel, subtitle }: HealthQu
           disabled={!answered || !declared || saving}
           onClick={confirm}
         >
-          {saving ? PRE_WORKOUT_COPY.saving : PRE_WORKOUT_COPY.confirm}
+          {saving ? PRE_WORKOUT_COPY.saving : confirmLabel}
         </Button>
         {onCancel ? (
           <Button variant="outline" size="lg" disabled={saving} onClick={onCancel}>

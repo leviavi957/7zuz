@@ -18,6 +18,7 @@ export const NAV_ITEMS: NavItem[] = [
 
 const EXTRA_TITLES: Record<string, string> = {
   '/design': 'מערכת עיצוב',
+  '/onboarding': 'ברוכים הבאים',
 }
 
 export function getPageTitle(pathname: string): string {
