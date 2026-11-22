@@ -12,7 +12,7 @@ function ToastItem({ toast }: { toast: Toast }) {
   }, [toast.id])
 
   return (
-    <div className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border bg-card p-3 text-card-foreground shadow-lift duration-(--motion-slow) ease-calm animate-in fade-in slide-in-from-top-2">
+    <div className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border bg-card p-3 text-card-foreground shadow-lift duration-(--motion-slow) ease-calm animate-in fade-in slide-in-from-bottom-2">
       <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
         <Bell className="size-5" aria-hidden="true" />
       </span>
@@ -36,7 +36,7 @@ export function Toaster() {
       role="region"
       aria-live="polite"
       aria-label="הודעות"
-      className="pointer-events-none fixed inset-x-4 top-20 z-[60] flex flex-col items-center gap-2"
+      className="pointer-events-none fixed inset-x-4 bottom-[max(5.5rem,env(safe-area-inset-bottom))] z-[60] flex flex-col items-center gap-2 md:bottom-8"
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />

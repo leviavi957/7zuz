@@ -1,3 +1,5 @@
+import { readUserJson, writeUserJson } from '@/lib/userStorage'
+
 /** A recurring "time to move" reminder. */
 export interface Reminder {
   id: string
@@ -29,7 +31,7 @@ export const RECOMMENDED_TIMES = ['10:30', '13:30', '16:00']
 
 export const DEFAULT_TIME = '10:00'
 
-const STORAGE_KEY = '7zuz.reminders'
+const SUFFIX = 'reminders'
 
 function sameDays(a: number[], b: number[]): boolean {
   return a.length === b.length && a.every((day) => b.includes(day))
@@ -63,18 +65,14 @@ function isReminder(value: unknown): value is Reminder {
   )
 }
 
-/** Stored reminders; anything unreadable counts as "none yet". */
+/** Stored reminders (per signed-in user); anything unreadable counts as "none yet". */
 export function loadReminders(): Reminder[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-    return Array.isArray(parsed) ? parsed.filter(isReminder) : []
-  } catch {
-    return []
-  }
+  const parsed = readUserJson<unknown>(SUFFIX, [])
+  return Array.isArray(parsed) ? parsed.filter(isReminder) : []
 }
 
 export function saveReminders(reminders: Reminder[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders))
+  writeUserJson(SUFFIX, reminders)
 }
 
 /** A reminder still fires this long after its time (background tabs run timers late). */

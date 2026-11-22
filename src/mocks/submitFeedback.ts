@@ -1,19 +1,16 @@
 import type { WorkoutFeedback } from '@/lib/feedback'
+import { readUserJson, writeUserJson } from '@/lib/userStorage'
 
 const LATENCY_MS = 600
-const STORAGE_KEY = '7zuz.feedback'
+const SUFFIX = 'feedback'
 
 interface StoredFeedback extends WorkoutFeedback {
   submittedAt: string
 }
 
 function readStored(): StoredFeedback[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-    return Array.isArray(parsed) ? (parsed as StoredFeedback[]) : []
-  } catch {
-    return []
-  }
+  const parsed = readUserJson<unknown>(SUFFIX, [])
+  return Array.isArray(parsed) ? (parsed as StoredFeedback[]) : []
 }
 
 /**
@@ -29,7 +26,7 @@ export function submitFeedback(feedback: WorkoutFeedback, fail = false): Promise
         return
       }
       const entry: StoredFeedback = { ...feedback, submittedAt: new Date().toISOString() }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...readStored(), entry]))
+      writeUserJson(SUFFIX, [...readStored(), entry])
       resolve()
     }, LATENCY_MS)
   })

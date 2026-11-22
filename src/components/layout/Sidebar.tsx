@@ -1,6 +1,8 @@
 import { PanelRightClose, PanelRightOpen } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { UserChip } from '@/components/auth/UserChip'
 import { Button } from '@/components/ui/button'
+import { useSession } from '@/hooks/useSession'
 import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
 import { NAV_ITEMS } from './nav-items'
@@ -11,6 +13,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const session = useSession()
+
   return (
     <aside
       className={cn(
@@ -46,17 +50,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         ))}
       </nav>
 
-      <Button
-        variant="ghost"
-        size={collapsed ? 'icon' : 'default'}
-        onClick={onToggle}
-        aria-expanded={!collapsed}
-        aria-label={collapsed ? 'הרחבת תפריט' : 'כיווץ תפריט'}
-        className={cn('justify-start text-muted-foreground', collapsed && 'self-center')}
-      >
-        {collapsed ? <PanelRightOpen /> : <PanelRightClose />}
-        {collapsed ? null : <span>כיווץ</span>}
-      </Button>
+      <div className={cn('mt-auto flex flex-col gap-2', collapsed && 'items-center')}>
+        {session ? <UserChip session={session} compact={collapsed} /> : null}
+        <Button
+          variant="ghost"
+          size={collapsed ? 'icon' : 'default'}
+          onClick={onToggle}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? 'הרחבת תפריט' : 'כיווץ תפריט'}
+          className={cn('justify-start text-muted-foreground', collapsed && 'self-center')}
+        >
+          {collapsed ? <PanelRightOpen /> : <PanelRightClose />}
+          {collapsed ? null : <span>כיווץ</span>}
+        </Button>
+      </div>
     </aside>
   )
 }

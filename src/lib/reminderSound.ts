@@ -1,11 +1,15 @@
-/** localStorage key of the "reminder sound" setting. On unless explicitly switched off. */
-export const REMINDER_SOUND_KEY = '7zuz.reminderSound'
+import { readUserItem, writeUserItem } from '@/lib/userStorage'
 
+const SUFFIX = 'reminderSound'
 const CHIME_SRC = '/audio/reminder-chime.wav'
 const CHIME_VOLUME = 0.5
 
 export function isReminderSoundOn(): boolean {
-  return localStorage.getItem(REMINDER_SOUND_KEY) !== 'false'
+  return readUserItem(SUFFIX) !== 'false'
+}
+
+export function setReminderSoundOn(on: boolean): void {
+  writeUserItem(SUFFIX, String(on))
 }
 
 /** Placeholder tone, used only when the chime file cannot be loaded. */

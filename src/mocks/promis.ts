@@ -1,7 +1,8 @@
 import type { PromisAnswers, PromisEntry, PromisRound } from '@/lib/promis'
 import { scorePromis } from '@/lib/promis'
+import { readUserJson, writeUserJson } from '@/lib/userStorage'
 
-const STORAGE_KEY = '7zuz.promis'
+const SUFFIX = 'promis'
 const LATENCY_MS = 400
 
 function isEntry(value: unknown): value is PromisEntry {
@@ -18,16 +19,12 @@ function isEntry(value: unknown): value is PromisEntry {
 }
 
 function read(): PromisEntry[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-    return Array.isArray(parsed) ? parsed.filter(isEntry) : []
-  } catch {
-    return []
-  }
+  const parsed = readUserJson<unknown>(SUFFIX, [])
+  return Array.isArray(parsed) ? parsed.filter(isEntry) : []
 }
 
 function write(entries: PromisEntry[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
+  writeUserJson(SUFFIX, entries)
 }
 
 /**

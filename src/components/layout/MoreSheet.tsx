@@ -1,5 +1,6 @@
 import { Ellipsis } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { UserChip } from '@/components/auth/UserChip'
 import {
   Sheet,
   SheetContent,
@@ -8,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { useSession } from '@/hooks/useSession'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS } from './nav-items'
 
@@ -17,6 +19,7 @@ const tabClasses =
 /** "More" tab for the mobile bottom bar; lists the non-primary destinations. */
 export function MoreSheet() {
   const extraItems = NAV_ITEMS.filter((item) => !item.primary)
+  const session = useSession()
 
   return (
     <Sheet>
@@ -41,6 +44,11 @@ export function MoreSheet() {
             </NavLink>
           ))}
         </nav>
+        {session ? (
+          <div className="border-t px-3 pb-4 pt-3">
+            <UserChip session={session} />
+          </div>
+        ) : null}
       </SheetContent>
     </Sheet>
   )

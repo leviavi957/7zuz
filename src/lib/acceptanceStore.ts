@@ -1,3 +1,5 @@
+import { readUserJson, writeUserJson } from '@/lib/userStorage'
+
 /** A recorded acceptance of the health questionnaire and declaration. */
 export interface Acceptance {
   /** ISO timestamp of the moment the user accepted. */
@@ -15,7 +17,7 @@ export interface AcceptanceStore {
   save(acceptance: Acceptance): Promise<void>
 }
 
-const STORAGE_KEY = '7zuz.healthAcceptance'
+const SUFFIX = 'healthAcceptance'
 
 function isAcceptance(value: unknown): value is Acceptance {
   if (typeof value !== 'object' || value === null) return false
@@ -25,14 +27,10 @@ function isAcceptance(value: unknown): value is Acceptance {
 
 export const acceptanceStore: AcceptanceStore = {
   async get() {
-    try {
-      const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
-      return isAcceptance(parsed) ? parsed : null
-    } catch {
-      return null
-    }
+    const parsed = readUserJson<unknown>(SUFFIX, null)
+    return isAcceptance(parsed) ? parsed : null
   },
   async save(acceptance) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(acceptance))
+    writeUserJson(SUFFIX, acceptance)
   },
 }

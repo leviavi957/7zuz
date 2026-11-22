@@ -3,20 +3,26 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { acceptanceStore } from '@/lib/acceptanceStore'
 import { Skeleton } from '@/components/shared/Skeleton'
 
+const AUTH_PATHS = ['/login', '/register', '/forgot-password']
+
 /**
- * Sends a person with no stored health acceptance to `/onboarding` the first
- * time they open the app. After onboarding saves an acceptance, this never
- * redirects again. The pre-workout questionnaire keeps its own rules.
+ * Sends a signed-in person with no stored health acceptance to `/onboarding`.
+ * Auth screens are skipped; AuthGuard handles guests.
  */
 export function OnboardingGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const onOnboarding = pathname.startsWith('/onboarding')
+  const onAuth = AUTH_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
   const [allowed, setAllowed] = useState(false)
 
   useEffect(() => {
-    if (onOnboarding) return
+    if (onOnboarding || onAuth) {
+      setAllowed(true)
+      return
+    }
     let cancelled = false
+    setAllowed(false)
     acceptanceStore
       .get()
       .catch(() => null)
@@ -28,9 +34,9 @@ export function OnboardingGuard({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [onOnboarding, navigate, pathname])
+  }, [onOnboarding, onAuth, navigate, pathname])
 
-  if (!onOnboarding && !allowed) {
+  if (!onOnboarding && !onAuth && !allowed) {
     return (
       <div
         role="status"

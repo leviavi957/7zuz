@@ -15,21 +15,23 @@ Vite 8 · React 19 · TypeScript · Tailwind v4 (`@theme inline`) · shadcn/base
 Tokens only — `src/index.css`. Never hardcode colors/fonts. Override **one** variable `--brand`; AA helpers (`brand-solid`, `brand-ink`, `brand-graphic`, `brand-soft`) derive from it. Live docs: `/design`. Demo “Preview as company” = `src/components/demo` (sets `data-brand`); remove that folder + TopBar usage to strip. Logical properties (`ms`/`me`, `ps`/`pe`, `text-start`). Skeletons / empty / error; often `?state=loading|empty|error`. Touch ≥44px, WCAG AA.
 
 ## Mock layers (swap for real APIs later)
+User data is namespaced `7zuz.<userId>.<suffix>` via `src/lib/userStorage.ts` (no migration of old keys). Theme / brand-preview stay global.
 | Layer | Where |
 | --- | --- |
-| Auth | **Not built** (no login store yet; onboarding ≠ auth) |
-| Acceptance (health) | `src/lib/acceptanceStore.ts` → `7zuz.healthAcceptance`; rules in `preWorkout.ts` |
-| PROMIS | `src/mocks/promis.ts` + `src/lib/promis.ts` → `7zuz.promis` (30-day interval) |
-| Reminders | `src/lib/reminders.ts` → `7zuz.reminders` (+ sound key, SW in `public/sw.js`) |
-| Sessions | **Not built** (no workout-session history store yet; feedback → `7zuz.feedback`) |
+| Auth | `src/lib/auth.ts` + `src/mocks/auth.ts` → `7zuz.session` (global); lockout → `7zuz.authLockedUntil` |
+| Acceptance (health) | `src/lib/acceptanceStore.ts` → `…healthAcceptance`; rules in `preWorkout.ts` |
+| PROMIS | `src/mocks/promis.ts` + `src/lib/promis.ts` → `…promis` (30-day interval) |
+| Reminders | `src/lib/reminders.ts` → `…reminders` (+ `…reminderSound`, SW in `public/sw.js`) |
+| Sessions | **Not built** (feedback → `…feedback`) |
 | Workouts | `src/mocks/workouts.ts` (+ `useMockWorkouts` / `useMockWorkout`, `todaysWorkout`, `home`) |
 | Exercises | `src/mocks/exercises.ts` — library; workouts reference `exerciseId`s via `WorkoutItem` |
 
 ## Routes
-**Built:** `/onboarding` · `/` Home · `/workouts` · `/workouts/:id` · `/workouts/:id/play` · `/workouts/:id/feedback` · `/reminders` · `/questionnaires` · `/design`  
-**Placeholder:** `/profile` (nav still shows it)
+**Built:** `/login` · `/register` · `/forgot-password` · `/onboarding` · `/` Home · `/workouts` · `/workouts/:id` · `/workouts/:id/play` · `/workouts/:id/feedback` · `/reminders` · `/questionnaires` · `/design`  
+**Placeholder:** `/profile` (nav still shows it) · `/admin` (trainer-only guard; pages later)
 
 ## Key product decisions
+- Auth is mock (`AuthGuard` + `src/lib/auth.ts`). Guests → `/login` (return URL preserved). After login: no health acceptance → `/onboarding`, else Home. Code login shows chip **משתתף/ת** only. `/admin` is trainer-only.
 - Health questionnaire: onboarding when no acceptance; again only if wording **version** rises or acceptance older than **90 days** (`QUESTIONNAIRE_VERSION`, `ACCEPTANCE_MAX_AGE_DAYS`). One component: `HealthQuestionnaire`.
 - Workouts compose an **exercise library** (not inline clips per workout).
 - Reminder defaults: **Israeli work week** Sun–Thu (`WORKDAYS`).
