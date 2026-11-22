@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { StartBar } from '@/components/workouts/StartBar'
 import { WorkoutStructure } from '@/components/workouts/WorkoutStructure'
 import { WorkoutThumbnail } from '@/components/workouts/WorkoutThumbnail'
+import { useSession } from '@/hooks/useSession'
+import { isTrainerPreview } from '@/lib/auth'
 import { formatMinutes, getTotalSeconds } from '@/lib/workoutTimeline'
 import { useMockWorkout } from '@/mocks/useMockWorkout'
 import { getWorkoutSteps } from '@/mocks/workoutSteps'
@@ -55,7 +57,7 @@ function DetailSkeleton() {
   )
 }
 
-function WorkoutDetail({ workout }: { workout: Workout }) {
+function WorkoutDetail({ workout, preview }: { workout: Workout; preview: boolean }) {
   const steps = useMemo(() => getWorkoutSteps(workout), [workout])
   const minutes = formatMinutes(getTotalSeconds(steps))
 
@@ -71,6 +73,7 @@ function WorkoutDetail({ workout }: { workout: Workout }) {
               {DIFFICULTY_LABELS[workout.difficulty]}
             </Badge>
             <Badge>{CATEGORY_LABELS[workout.category]}</Badge>
+            {preview ? <Badge variant="brand">מצב תצוגה מקדימה</Badge> : null}
           </div>
           <div>
             <h2 className="text-3xl md:text-4xl">{workout.title}</h2>
@@ -92,6 +95,8 @@ function WorkoutDetail({ workout }: { workout: Workout }) {
 export default function WorkoutDetailPage() {
   const { id } = useParams()
   const { status, workout, retry } = useMockWorkout(id)
+  const session = useSession()
+  const preview = isTrainerPreview(session?.role)
 
   if (status === 'loading') return <DetailSkeleton />
 
@@ -119,5 +124,5 @@ export default function WorkoutDetailPage() {
     )
   }
 
-  return <WorkoutDetail workout={workout} />
+  return <WorkoutDetail workout={workout} preview={preview} />
 }

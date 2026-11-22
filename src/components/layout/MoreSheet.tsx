@@ -11,15 +11,15 @@ import {
 } from '@/components/ui/sheet'
 import { useSession } from '@/hooks/useSession'
 import { cn } from '@/lib/utils'
-import { NAV_ITEMS } from './nav-items'
+import { getNavItemsForRole } from './nav-items'
 
 const tabClasses =
   'flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl text-xs text-muted-foreground'
 
 /** "More" tab for the mobile bottom bar; lists the non-primary destinations. */
 export function MoreSheet() {
-  const extraItems = NAV_ITEMS.filter((item) => !item.primary)
   const session = useSession()
+  const extraItems = getNavItemsForRole(session?.role).filter((item) => !item.primary)
 
   return (
     <Sheet>

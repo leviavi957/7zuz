@@ -9,6 +9,27 @@ import {
 export type Role = 'employee' | 'org_manager' | 'trainer' | 'team'
 export type LoginType = 'email' | 'code'
 
+/** Roles that train (workouts, health/PROMIS onboarding). Code users are `team`. */
+export function isTrainingRole(role: Role | null | undefined): boolean {
+  return role === 'employee' || role === 'team'
+}
+
+/** Workouts list/detail/player: employees, team, and trainers (preview). */
+export function canAccessWorkouts(role: Role | null | undefined): boolean {
+  return isTrainingRole(role) || role === 'trainer'
+}
+
+/** Trainer opens workouts in preview — no questionnaire, feedback, or session save. */
+export function isTrainerPreview(role: Role | null | undefined): boolean {
+  return role === 'trainer'
+}
+
+/** Landing path after auth for the role (trainer uses /org until /admin exists). */
+export function roleHomePath(role: Role | null | undefined): string {
+  if (role === 'org_manager' || role === 'trainer') return '/org'
+  return '/'
+}
+
 export interface Session {
   userId: string
   role: Role

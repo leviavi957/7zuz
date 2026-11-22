@@ -3,14 +3,17 @@ import { Link } from 'react-router-dom'
 import { Card } from '@/components/shared/Card'
 import { Button } from '@/components/ui/button'
 import { usePromis } from '@/hooks/usePromis'
+import { useSession } from '@/hooks/useSession'
+import { isTrainingRole } from '@/lib/auth'
 
 /**
  * Gentle Home reminder when a monthly PROMIS fill is due. Never a blocking
- * popup. Hidden while loading, on error, or when nothing is due.
+ * popup. Hidden for non-training roles, while loading, on error, or when not due.
  */
 export function PromisDueBanner() {
+  const session = useSession()
   const { status, due, latest } = usePromis()
-  if (status !== 'ready' || !due) return null
+  if (!isTrainingRole(session?.role) || status !== 'ready' || !due) return null
 
   return (
     <Card tone="brand" className="flex flex-wrap items-center gap-3 p-4 md:p-4">

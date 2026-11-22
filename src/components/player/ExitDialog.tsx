@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button'
 
 interface ExitDialogProps {
   completion: number
+  /** Trainer preview — no feedback step after exit. */
+  preview?: boolean
   onCancel: () => void
   onConfirm: () => void
 }
@@ -11,7 +13,7 @@ interface ExitDialogProps {
  * Rendered inline (not in a portal) so it stays visible in fullscreen.
  * Focus starts on "continue" and cycles between the two buttons.
  */
-export function ExitDialog({ completion, onCancel, onConfirm }: ExitDialogProps) {
+export function ExitDialog({ completion, preview = false, onCancel, onConfirm }: ExitDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null)
   const confirmRef = useRef<HTMLButtonElement>(null)
 
@@ -47,7 +49,9 @@ export function ExitDialog({ completion, onCancel, onConfirm }: ExitDialogProps)
           לצאת מהאימון?
         </h2>
         <p id="exit-description" className="mt-1 text-muted-foreground">
-          השלמתם {completion}% מהאימון. אפשר להמשיך מאותה נקודה, או לצאת ולעבור למשוב.
+          {preview
+            ? `השלמתם ${completion}% מהתצוגה המקדימה. אפשר להמשיך, או לצאת חזרה לפרטי האימון.`
+            : `השלמתם ${completion}% מהאימון. אפשר להמשיך מאותה נקודה, או לצאת ולעבור למשוב.`}
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
           <Button ref={cancelRef} onClick={onCancel} className="sm:flex-1">

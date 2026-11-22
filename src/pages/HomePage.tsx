@@ -13,6 +13,8 @@ import { Skeleton } from '@/components/shared/Skeleton'
 import { StretchIllustration } from '@/components/shared/StretchIllustration'
 import { TodayProgress } from '@/components/shared/TodayProgress'
 import { Button } from '@/components/ui/button'
+import { useSession } from '@/hooks/useSession'
+import { isTrainingRole } from '@/lib/auth'
 import type { HomeData } from '@/mocks/home'
 import { getTodaysWorkoutId } from '@/mocks/todaysWorkout'
 import { useMockHome } from '@/mocks/useMockHome'
@@ -41,7 +43,7 @@ function HomeSkeleton() {
   )
 }
 
-function Hero({ data }: { data: HomeData }) {
+function Hero({ data, canStart }: { data: HomeData; canStart: boolean }) {
   const remaining = Math.max(data.weekGoal - data.weekDone, 0)
 
   return (
@@ -76,17 +78,19 @@ function Hero({ data }: { data: HomeData }) {
             max={data.monthGoal}
             tone="primary"
           />
-          <Button variant="brand" size="lg" className="self-start" render={<Link to={startPath} />}>
-            <Play />
-            התחלת אימון
-          </Button>
+          {canStart ? (
+            <Button variant="brand" size="lg" className="self-start" render={<Link to={startPath} />}>
+              <Play />
+              התחלת אימון
+            </Button>
+          ) : null}
         </div>
       </div>
     </Card>
   )
 }
 
-function HomeContent({ data }: { data: HomeData }) {
+function HomeContent({ data, canStart }: { data: HomeData; canStart: boolean }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-end justify-between gap-4">
@@ -97,14 +101,14 @@ function HomeContent({ data }: { data: HomeData }) {
         <StretchIllustration className="w-28 shrink-0 text-foreground/80 md:w-48" />
       </div>
 
-      <Hero data={data} />
+      <Hero data={data} canStart={canStart} />
 
       <PromisDueBanner />
 
       <div className="grid gap-5 md:grid-cols-2">
         <Card className="flex flex-col justify-between gap-4">
           <TodayProgress done={data.todayDone} total={data.todayTotal} />
-          <NextReminder />
+          {canStart ? <NextReminder /> : null}
         </Card>
         <Card tone="sage" className="flex flex-col gap-3">
           <Quote className="size-6 text-sage-ink" aria-hidden="true" />
@@ -126,6 +130,8 @@ function HomeContent({ data }: { data: HomeData }) {
 
 export default function HomePage() {
   const { status, data, retry } = useMockHome()
+  const session = useSession()
+  const canStart = isTrainingRole(session?.role)
 
   if (status === 'loading') return <HomeSkeleton />
   if (status === 'error') return <ErrorState onRetry={retry} />
@@ -136,13 +142,15 @@ export default function HomePage() {
         title="עוד לא התחלת להתאמן"
         description="האימון הראשון לוקח שתי דקות. אחריו תראו כאן את ההתקדמות שלכם."
         action={
-          <Button variant="brand" size="lg" render={<Link to={startPath} />}>
-            <Play />
-            התחלת אימון ראשון
-          </Button>
+          canStart ? (
+            <Button variant="brand" size="lg" render={<Link to={startPath} />}>
+              <Play />
+              התחלת אימון ראשון
+            </Button>
+          ) : undefined
         }
       />
     )
   }
-  return <HomeContent data={data} />
+  return <HomeContent data={data} canStart={canStart} />
 }

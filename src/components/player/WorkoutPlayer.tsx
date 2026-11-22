@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMusicPlayer } from '@/components/music/useMusicPlayer'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
+import { Badge } from '@/components/shared/Badge'
 import { BasadMark } from '@/components/shared/BasadMark'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { Button } from '@/components/ui/button'
@@ -26,7 +27,13 @@ const HIDE_AFTER_MS = 3000
 const BUFFERING_DELAY_MS = 450
 const BUFFERING_PREVIEW_MS = 4000
 
-export function WorkoutPlayer({ workout }: { workout: Workout }) {
+interface WorkoutPlayerProps {
+  workout: Workout
+  /** Trainer preview: leave to detail, skip feedback / session save. */
+  preview?: boolean
+}
+
+export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const previewBuffering = params.get('state') === 'buffering'
@@ -48,12 +55,17 @@ export function WorkoutPlayer({ workout }: { workout: Workout }) {
     return () => clearTimeout(id)
   }, [previewBuffering])
 
-  const goToFeedback = useCallback(
-    (completion: number) =>
-      navigate(`/workouts/${workout.id}/feedback?completion=${completion}`, { replace: true }),
-    [navigate, workout.id],
+  const leavePlayer = useCallback(
+    (completion: number) => {
+      if (preview) {
+        navigate(`/workouts/${workout.id}`, { replace: true })
+        return
+      }
+      navigate(`/workouts/${workout.id}/feedback?completion=${completion}`, { replace: true })
+    },
+    [navigate, preview, workout.id],
   )
-  const finish = useCallback(() => goToFeedback(100), [goToFeedback])
+  const finish = useCallback(() => leavePlayer(100), [leavePlayer])
 
   // The video must keep playing while buffering, or `playing` would never fire.
   const videoPaused = paused || exitOpen
@@ -133,6 +145,7 @@ export function WorkoutPlayer({ workout }: { workout: Workout }) {
             <p className="truncate rounded-full bg-card px-4 py-2 text-sm font-medium shadow-soft">
               {workout.title}
             </p>
+            {preview ? <Badge variant="brand">מצב תצוגה מקדימה</Badge> : null}
           </div>
           {fullscreen.supported ? (
             <Button
@@ -183,8 +196,9 @@ export function WorkoutPlayer({ workout }: { workout: Workout }) {
       {exitOpen ? (
         <ExitDialog
           completion={playback.completion}
+          preview={preview}
           onCancel={() => setExitOpen(false)}
-          onConfirm={() => goToFeedback(playback.completion)}
+          onConfirm={() => leavePlayer(playback.completion)}
         />
       ) : null}
     </div>

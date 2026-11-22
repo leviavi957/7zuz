@@ -1,16 +1,20 @@
 import { NavLink } from 'react-router-dom'
+import { useSession } from '@/hooks/useSession'
 import { cn } from '@/lib/utils'
 import { MoreSheet } from './MoreSheet'
-import { NAV_ITEMS } from './nav-items'
+import { getNavItemsForRole } from './nav-items'
 
 export function BottomNav() {
+  const session = useSession()
+  const primaryItems = getNavItemsForRole(session?.role).filter((item) => item.primary)
+
   return (
     <nav
       aria-label="ניווט ראשי"
       className="fixed inset-x-0 bottom-0 z-30 border-t bg-card px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
     >
       <div className="flex items-stretch gap-1">
-        {NAV_ITEMS.filter((item) => item.primary).map(({ to, label, icon: Icon }) => (
+        {primaryItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

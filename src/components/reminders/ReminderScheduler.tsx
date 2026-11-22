@@ -1,19 +1,18 @@
 import { useEffect } from 'react'
 import { announceReminder } from '@/lib/announceReminder'
+import { getSessionSnapshot, isTrainingRole } from '@/lib/auth'
 import { isDue, loadReminders, saveReminders } from '@/lib/reminders'
 
 const CHECK_EVERY_MS = 15_000
 
 /**
- * Announces every due reminder: an in-page toast, plus a system notification
- * when allowed. It only runs while the app is open in the browser (there is no
- * background service yet). Background tabs throttle timers, so the check also runs when the tab becomes visible or
- * focused, and a reminder still fires within its catch-up window. Renders
- * nothing.
+ * Announces every due reminder for training roles only. Renders nothing.
  */
 export function ReminderScheduler() {
   useEffect(() => {
     const check = () => {
+      if (!isTrainingRole(getSessionSnapshot()?.role)) return
+
       const now = new Date()
       const reminders = loadReminders()
       const due = reminders.filter((reminder) => isDue(reminder, now))

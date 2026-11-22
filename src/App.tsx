@@ -13,6 +13,7 @@ import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import OnboardingPage from '@/pages/OnboardingPage'
+import OrgDashboardPage from '@/pages/OrgDashboardPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
 import QuestionnairesPage from '@/pages/QuestionnairesPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -23,13 +24,9 @@ import WorkoutPlayerPage from '@/pages/WorkoutPlayerPage'
 import WorkoutsPage from '@/pages/WorkoutsPage'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 
-const PLACEHOLDER_ITEMS = NAV_ITEMS.filter(
-  (item) =>
-    item.to !== '/' &&
-    item.to !== '/workouts' &&
-    item.to !== '/reminders' &&
-    item.to !== '/questionnaires',
-)
+const BUILT_PATHS = new Set(['/', '/workouts', '/reminders', '/questionnaires', '/org'])
+
+const PLACEHOLDER_ITEMS = NAV_ITEMS.filter((item) => !BUILT_PATHS.has(item.to))
 
 export default function App() {
   return (
@@ -55,6 +52,7 @@ export default function App() {
                   <Route path="workouts/:id/feedback" element={<WorkoutFeedbackPage />} />
                   <Route path="reminders" element={<RemindersPage />} />
                   <Route path="questionnaires" element={<QuestionnairesPage />} />
+                  <Route path="org" element={<OrgDashboardPage />} />
                   {PLACEHOLDER_ITEMS.map(({ to, icon, label }) => (
                     <Route key={to} path={to} element={<PlaceholderPage icon={icon} title={label} />} />
                   ))}

@@ -18,11 +18,17 @@ export function SegmentedControl<T extends string>({
   options,
   label,
 }: SegmentedControlProps<T>) {
+  const columns =
+    options.length === 3 ? 'grid-cols-3' : options.length >= 4 ? 'grid-cols-4' : 'grid-cols-2'
+
   return (
     <div
       role="tablist"
       aria-label={label}
-      className="grid grid-cols-2 gap-1 rounded-2xl border border-input bg-muted/60 p-1"
+      className={cn(
+        'grid gap-1 rounded-2xl border border-input bg-muted/60 p-1',
+        columns,
+      )}
     >
       {options.map((option) => {
         const active = option.value === value

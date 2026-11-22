@@ -9,6 +9,8 @@ import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
 import { BasadMark } from '@/components/shared/BasadMark'
 import { Skeleton } from '@/components/shared/Skeleton'
 import { Button } from '@/components/ui/button'
+import { useSession } from '@/hooks/useSession'
+import { isTrainerPreview } from '@/lib/auth'
 import { needsQuestionnaire } from '@/lib/preWorkout'
 import { useMockWorkout } from '@/mocks/useMockWorkout'
 
@@ -25,6 +27,8 @@ export default function WorkoutPlayerPage() {
   const { id } = useParams()
   const { status, workout, retry } = useMockWorkout(id)
   const navigate = useNavigate()
+  const session = useSession()
+  const preview = isTrainerPreview(session?.role)
   // The workout starts only once the health check is passed: still valid, or just completed.
   const [gate, setGate] = useState<'checking' | 'required' | 'passed'>('checking')
 
@@ -97,5 +101,5 @@ export default function WorkoutPlayerPage() {
     )
   }
 
-  return <WorkoutPlayer workout={workout} />
+  return <WorkoutPlayer workout={workout} preview={preview} />
 }

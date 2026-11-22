@@ -1,4 +1,5 @@
 import { acceptanceStore, type Acceptance } from '@/lib/acceptanceStore'
+import { getSessionSnapshot, isTrainingRole } from '@/lib/auth'
 
 /**
  * Current version of the questionnaire and declaration wording. Raise it when
@@ -21,6 +22,7 @@ export function isAcceptanceValid(acceptance: Acceptance | null, now: Date = new
 
 /** Whether the questionnaire must be shown before the next workout. */
 export async function needsQuestionnaire(): Promise<boolean> {
+  if (!isTrainingRole(getSessionSnapshot()?.role)) return false
   return !isAcceptanceValid(await acceptanceStore.get())
 }
 

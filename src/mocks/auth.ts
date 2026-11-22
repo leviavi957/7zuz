@@ -3,8 +3,8 @@ import type { Role } from '@/lib/auth'
 /**
  * Demo accounts (password for all emails: Demo1234!):
  * - demo@7zuz.co → employee
- * - trainer@7zuz.co → trainer (can open /admin)
- * - manager@7zuz.co → org_manager
+ * - trainer@7zuz.co → trainer (can open /admin and /org)
+ * - manager@7zuz.co → org_manager (HR dashboard at /org)
  *
  * Demo personal codes (case-insensitive; display as XXXX-XXXX):
  * - ABCD-2345 → team participant

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useSession } from '@/hooks/useSession'
 import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
-import { NAV_ITEMS } from './nav-items'
+import { getNavItemsForRole } from './nav-items'
 
 interface SidebarProps {
   collapsed: boolean
@@ -14,6 +14,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const session = useSession()
+  const items = getNavItemsForRole(session?.role)
 
   return (
     <aside
@@ -27,7 +28,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
 
       <nav aria-label="ניווט ראשי" className="mt-6 flex flex-1 flex-col gap-1">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
