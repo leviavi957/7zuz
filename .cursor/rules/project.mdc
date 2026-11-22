@@ -12,3 +12,9 @@ alwaysApply: true
 - Never put secrets in front-end code. Secrets live only in environment variables, and `.env` files are git-ignored.
 - Keep components small, typed and reusable. No dead code, no TODO placeholders in finished work.
 - Do not install new dependencies without stating why.
+- Read docs/PROJECT_NOTES.md at the start of each new chat.
+- Desktop-first. Tablet secondary. The phone layout must work and not break, but do not spend effort polishing it.
+- Make small, targeted changes. Do not run broad audits or refactors unless I ask.
+- Reply with a short summary only: what changed, which files, and how to test it.
+- Use mock data through async APIs in src/mocks, so it can be replaced by a real database later.
+- Never commit or push.
