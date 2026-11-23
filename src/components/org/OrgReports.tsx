@@ -2,12 +2,50 @@ import { Download, FileText } from 'lucide-react'
 import { Card } from '@/components/shared/Card'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { Button } from '@/components/ui/button'
+import { downloadFile } from '@/lib/downloadFile'
 import type { OrgReport } from '@/mocks/orgStats'
 
 function formatReportDate(iso: string): string {
   const [year, month, day] = iso.split('-')
   if (!year || !month || !day) return iso
   return `${Number(day)}.${Number(month)}.${year}`
+}
+
+function csvCell(value: string | number): string {
+  const text = String(value)
+  if (/[",\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`
+  return text
+}
+
+/** Anonymous aggregates only — never names, emails, or codes. */
+function reportCsv(report: OrgReport): string {
+  const rows: (string | number)[][] = [
+    ['דוח', report.title],
+    ['תאריך', report.date],
+    ['סיכום', report.summary],
+  ]
+  if (report.metrics) {
+    rows.push(
+      ['אימונים שהושלמו', report.metrics.workoutsCompleted],
+      ['שיעור השתתפות', `${report.metrics.participationPercent}%`],
+      ['מאמץ ממוצע', report.metrics.averageEffort],
+      ['שיעור השלמה', `${report.metrics.completionPercent}%`],
+    )
+  } else {
+    rows.push(['הערה', 'הנתונים המספריים מוסתרים לפי מדיניות הפרטיות'])
+  }
+  return rows.map((row) => row.map((cell) => csvCell(cell)).join(',')).join('\r\n')
+}
+
+function reportFilename(report: OrgReport): string {
+  const safe = report.title.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim() || report.id
+  return `${safe}-${report.date}.csv`
+}
+
+function downloadReport(report: OrgReport): void {
+  // Mock action: a client-side CSV of this report's anonymous aggregates. No server.
+  const blob = new Blob([`\uFEFF${reportCsv(report)}`], { type: 'text/csv;charset=utf-8' })
+  downloadFile(reportFilename(report), blob)
 }
 
 interface OrgReportsProps {
@@ -47,9 +85,7 @@ export function OrgReports({ reports }: OrgReportsProps) {
                   type="button"
                   variant="outline"
                   className="shrink-0 self-start sm:self-center"
-                  disabled
-                  aria-disabled="true"
-                  title="הורדה תהיה זמינה בהמשך"
+                  onClick={() => downloadReport(report)}
                 >
                   <Download />
                   הורדה

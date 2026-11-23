@@ -17,12 +17,23 @@ export interface OrgOrganization {
   logoInitials: string
 }
 
+/** Anonymous report figures. Omitted when the org is below the privacy threshold. */
+export interface OrgReportMetrics {
+  workoutsCompleted: number
+  /** Whole percent, 0–100. */
+  participationPercent: number
+  averageEffort: number
+  /** Whole percent, 0–100. */
+  completionPercent: number
+}
+
 export interface OrgReport {
   id: string
   title: string
   /** ISO date (day). */
   date: string
   summary: string
+  metrics?: OrgReportMetrics
 }
 
 export interface OrgTimePoint {
@@ -137,18 +148,36 @@ const DEMO_ORG: OrgSeed = {
       title: 'סיכום חודשי — אוקטובר',
       date: '2025-11-02',
       summary: 'סיכום אנונימי של השתתפות ומאמץ ממוצע לחודש שעבר.',
+      metrics: {
+        workoutsCompleted: 186,
+        participationPercent: 64,
+        averageEffort: 3.1,
+        completionPercent: 78,
+      },
     },
     {
       id: 'rep-2',
       title: 'דוח רבעוני — רבעון 3',
       date: '2025-10-05',
       summary: 'מגמות השתתפות לפי ימי השבוע, ללא פרטים אישיים.',
+      metrics: {
+        workoutsCompleted: 540,
+        participationPercent: 71,
+        averageEffort: 3.4,
+        completionPercent: 82,
+      },
     },
     {
       id: 'rep-3',
       title: 'עדכון קצר — שבוע 42',
       date: '2025-10-20',
       summary: 'תמצית שבועית של אימונים שהושלמו ושיעור השלמה.',
+      metrics: {
+        workoutsCompleted: 47,
+        participationPercent: 58,
+        averageEffort: 2.9,
+        completionPercent: 74,
+      },
     },
   ],
 }

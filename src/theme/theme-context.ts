@@ -1,9 +1,13 @@
 import { createContext, useContext } from 'react'
 
 export type Theme = 'light' | 'dark'
+export type ThemePreference = 'light' | 'dark' | 'system'
 
 export interface ThemeContextValue {
+  /** Appearance currently applied (system resolved to light or dark). */
   theme: Theme
+  preference: ThemePreference
+  setPreference: (preference: ThemePreference) => void
   toggleTheme: () => void
 }
 

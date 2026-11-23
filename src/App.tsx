@@ -15,6 +15,7 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import OnboardingPage from '@/pages/OnboardingPage'
 import OrgDashboardPage from '@/pages/OrgDashboardPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
+import ProfilePage from '@/pages/ProfilePage'
 import QuestionnairesPage from '@/pages/QuestionnairesPage'
 import RegisterPage from '@/pages/RegisterPage'
 import RemindersPage from '@/pages/RemindersPage'
@@ -24,7 +25,7 @@ import WorkoutPlayerPage from '@/pages/WorkoutPlayerPage'
 import WorkoutsPage from '@/pages/WorkoutsPage'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 
-const BUILT_PATHS = new Set(['/', '/workouts', '/reminders', '/questionnaires', '/org'])
+const BUILT_PATHS = new Set(['/', '/workouts', '/reminders', '/questionnaires', '/org', '/profile'])
 
 const PLACEHOLDER_ITEMS = NAV_ITEMS.filter((item) => !BUILT_PATHS.has(item.to))
 
@@ -53,6 +54,7 @@ export default function App() {
                   <Route path="reminders" element={<RemindersPage />} />
                   <Route path="questionnaires" element={<QuestionnairesPage />} />
                   <Route path="org" element={<OrgDashboardPage />} />
+                  <Route path="profile" element={<ProfilePage />} />
                   {PLACEHOLDER_ITEMS.map(({ to, icon, label }) => (
                     <Route key={to} path={to} element={<PlaceholderPage icon={icon} title={label} />} />
                   ))}

@@ -1,4 +1,6 @@
+import { X } from 'lucide-react'
 import { useEffect, useRef, type KeyboardEvent } from 'react'
+import { Button } from '@/components/ui/button'
 import { PRE_WORKOUT_COPY } from '@/content/preWorkoutCopy'
 import { HealthQuestionnaire } from './HealthQuestionnaire'
 
@@ -48,8 +50,13 @@ export function PreWorkoutDialog({ workoutTitle, onCancel, onComplete }: PreWork
         aria-modal="true"
         aria-label={PRE_WORKOUT_COPY.title}
         tabIndex={-1}
-        className="flex max-h-full w-full max-w-lg flex-col rounded-t-3xl border bg-card text-card-foreground shadow-lift outline-none sm:rounded-3xl"
+        className="flex max-h-full min-h-0 w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border bg-card text-card-foreground shadow-lift outline-none sm:rounded-3xl"
       >
+        <div className="flex shrink-0 items-center justify-end border-b px-3 py-2">
+          <Button type="button" variant="ghost" size="icon" aria-label="סגירה" onClick={onCancel}>
+            <X />
+          </Button>
+        </div>
         <HealthQuestionnaire subtitle={workoutTitle} onCancel={onCancel} onComplete={onComplete} />
       </div>
     </div>

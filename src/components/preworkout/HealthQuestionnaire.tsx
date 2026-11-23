@@ -45,8 +45,8 @@ export function HealthQuestionnaire({
   }
 
   return (
-    <>
-      <div className="flex items-center gap-3 border-b p-5">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex shrink-0 items-center gap-3 border-b p-5">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
           <HeartPulse className="size-6" aria-hidden="true" />
         </span>
@@ -56,7 +56,7 @@ export function HealthQuestionnaire({
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 overflow-y-auto p-5">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-5">
         <p className="text-muted-foreground">{PRE_WORKOUT_COPY.intro}</p>
 
         {HEALTH_QUESTIONS.map(({ id, text }, index) => (
@@ -93,7 +93,7 @@ export function HealthQuestionnaire({
         </label>
       </div>
 
-      <div className="flex flex-col gap-2 border-t p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:flex-row-reverse">
+      <div className="flex shrink-0 flex-col gap-2 border-t p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:flex-row-reverse">
         <Button
           variant="brand"
           size="lg"
@@ -109,6 +109,6 @@ export function HealthQuestionnaire({
           </Button>
         ) : null}
       </div>
-    </>
+    </div>
   )
 }

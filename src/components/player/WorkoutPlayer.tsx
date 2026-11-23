@@ -11,7 +11,9 @@ import { cn } from '@/lib/utils'
 import { useAutoHide } from '@/hooks/useAutoHide'
 import { useDebouncedFlag } from '@/hooks/useDebouncedFlag'
 import { useFullscreen } from '@/hooks/useFullscreen'
+import { getCompletionStats } from '@/lib/completionStats'
 import { findNextWorkStep, formatSeconds } from '@/lib/workoutTimeline'
+import { recordSession } from '@/mocks/sessions'
 import { getWorkoutSteps } from '@/mocks/workoutSteps'
 import type { Workout } from '@/mocks/workouts'
 import { BufferingOverlay } from './BufferingOverlay'
@@ -61,9 +63,17 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
         navigate(`/workouts/${workout.id}`, { replace: true })
         return
       }
+      if (completion > 0) {
+        const { minutes } = getCompletionStats(steps, completion)
+        void recordSession({
+          workoutId: workout.id,
+          completedAt: new Date().toISOString(),
+          minutes,
+        })
+      }
       navigate(`/workouts/${workout.id}/feedback?completion=${completion}`, { replace: true })
     },
-    [navigate, preview, workout.id],
+    [navigate, preview, steps, workout.id],
   )
   const finish = useCallback(() => leavePlayer(100), [leavePlayer])
 

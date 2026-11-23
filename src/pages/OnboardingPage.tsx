@@ -1,12 +1,13 @@
 import { ArrowRight, Check, PartyPopper } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { HealthQuestionnaire } from '@/components/preworkout/HealthQuestionnaire'
 import { PromisQuestionnaire } from '@/components/promis/PromisQuestionnaire'
 import { BackgroundShapes } from '@/components/shared/BackgroundShapes'
 import { BasadMark } from '@/components/shared/BasadMark'
 import { Card } from '@/components/shared/Card'
 import { Button } from '@/components/ui/button'
+import { signOut } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 type Step = 'health' | 'promis' | 'done'
@@ -21,13 +22,35 @@ const STEPS: { id: Exclude<Step, 'done'>; label: string }[] = [
  * completion screen. Lives outside the app shell.
  */
 export default function OnboardingPage() {
+  const navigate = useNavigate()
   const [step, setStep] = useState<Step>('health')
+  const [leaving, setLeaving] = useState(false)
   const stepIndex = step === 'done' ? STEPS.length : STEPS.findIndex(({ id }) => id === step)
+
+  const leave = async () => {
+    if (leaving) return
+    setLeaving(true)
+    try {
+      await signOut()
+      navigate('/login', { replace: true })
+    } finally {
+      setLeaving(false)
+    }
+  }
 
   return (
     <div className="relative isolate flex min-h-svh flex-col bg-background">
       <BackgroundShapes />
       <BasadMark className="absolute start-4 top-3 z-10" />
+      <Button
+        type="button"
+        variant="ghost"
+        className="absolute end-3 top-2 z-10 text-muted-foreground"
+        disabled={leaving}
+        onClick={() => void leave()}
+      >
+        יציאה מהמערכת
+      </Button>
 
       <header className="mx-auto flex w-full max-w-lg flex-col gap-4 px-4 pb-2 pt-10">
         {step !== 'health' && step !== 'done' ? (

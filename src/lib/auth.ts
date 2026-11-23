@@ -242,7 +242,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
     userId: user.id,
     role: user.role,
     loginType: 'email',
-    displayName: user.displayName,
+    displayName: savedDisplayName(user.id) ?? user.displayName,
   }
   writeSession(session)
   return session
@@ -299,7 +299,7 @@ export async function signInWithGoogle(): Promise<Session> {
     userId: DEMO_GOOGLE_USER.id,
     role: DEMO_GOOGLE_USER.role,
     loginType: 'email',
-    displayName: DEMO_GOOGLE_USER.displayName,
+    displayName: savedDisplayName(DEMO_GOOGLE_USER.id) ?? DEMO_GOOGLE_USER.displayName,
   }
   writeSession(session)
   return session
@@ -342,6 +342,56 @@ export async function requestPasswordReset(_email: string): Promise<void> {
 export async function signOut(): Promise<void> {
   await delay(80)
   writeSession(null)
+}
+
+const DISPLAY_NAME_MAX = 40
+
+function displayNameKey(userId: string): string {
+  return `7zuz.${userId}.displayName`
+}
+
+function savedDisplayName(userId: string): string | null {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(displayNameKey(userId)) ?? 'null')
+    if (typeof parsed !== 'string') return null
+    const trimmed = parsed.trim()
+    return trimmed ? trimmed : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Email for an email-login account. Code users always get null — never look up
+ * or invent an address for them.
+ */
+export function accountEmail(session: Session): string | null {
+  if (session.loginType !== 'email') return null
+  const known = [...DEMO_EMAIL_USERS, DEMO_GOOGLE_USER].find((user) => user.id === session.userId)
+  if (known) return known.email
+  return readRegistered().find((user) => user.id === session.userId)?.email ?? null
+}
+
+/** Saves a display name for email users. Code users are rejected. */
+export async function updateDisplayName(name: string): Promise<void> {
+  await delay(200)
+  const session = readSession()
+  if (!session || session.loginType !== 'email') {
+    throw new AuthError('validation', 'לא ניתן לעדכן שם')
+  }
+  const trimmed = name.trim()
+  if (!trimmed || trimmed.length > DISPLAY_NAME_MAX) {
+    throw new AuthError('validation', 'יש להזין שם תצוגה עד 40 תווים')
+  }
+  localStorage.setItem(displayNameKey(session.userId), JSON.stringify(trimmed))
+  const users = readRegistered()
+  const index = users.findIndex((user) => user.id === session.userId)
+  if (index >= 0) {
+    const next = [...users]
+    next[index] = { ...next[index], displayName: trimmed }
+    writeRegistered(next)
+  }
+  writeSession({ ...session, displayName: trimmed })
 }
 
 /** Label shown in the user chip — code users never show an email. */
