@@ -15,6 +15,7 @@ import { TodayProgress } from '@/components/shared/TodayProgress'
 import { Button } from '@/components/ui/button'
 import { useSession } from '@/hooks/useSession'
 import { isTrainingRole } from '@/lib/auth'
+import { resumePlayerAudio } from '@/lib/playerAudioContext'
 import type { HomeData } from '@/mocks/home'
 import { getTodaysWorkoutId } from '@/mocks/todaysWorkout'
 import { useMockHome } from '@/mocks/useMockHome'
@@ -79,7 +80,13 @@ function Hero({ data, canStart }: { data: HomeData; canStart: boolean }) {
             tone="primary"
           />
           {canStart ? (
-            <Button variant="brand" size="lg" className="self-start" render={<Link to={startPath} />}>
+            <Button
+              variant="brand"
+              size="lg"
+              className="self-start"
+              render={<Link to={startPath} />}
+              onClick={resumePlayerAudio}
+            >
               <Play />
               התחלת אימון
             </Button>
@@ -143,7 +150,7 @@ export default function HomePage() {
         description="האימון הראשון לוקח שתי דקות. אחריו תראו כאן את ההתקדמות שלכם."
         action={
           canStart ? (
-            <Button variant="brand" size="lg" render={<Link to={startPath} />}>
+            <Button variant="brand" size="lg" render={<Link to={startPath} />} onClick={resumePlayerAudio}>
               <Play />
               התחלת אימון ראשון
             </Button>

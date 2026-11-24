@@ -2,6 +2,7 @@ import { Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { PRE_WORKOUT_COPY } from '@/content/preWorkoutCopy'
+import { resumePlayerAudio } from '@/lib/playerAudioContext'
 
 /**
  * One-tap start. Sticky above the bottom nav on phones; inline and prominent
@@ -15,6 +16,7 @@ export function StartBar({ workoutId }: { workoutId: string }) {
         size="lg"
         className="h-14 w-full text-lg md:max-w-sm"
         render={<Link to={`/workouts/${workoutId}/play`} />}
+        onClick={resumePlayerAudio}
       >
         <Play />
         התחלת אימון

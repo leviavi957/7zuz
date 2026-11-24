@@ -2,6 +2,7 @@ import { HeartPulse, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { HEALTH_QUESTIONS, PRE_WORKOUT_COPY } from '@/content/preWorkoutCopy'
+import { resumePlayerAudio } from '@/lib/playerAudioContext'
 import { recordAcceptance } from '@/lib/preWorkout'
 import { YesNoQuestion } from './YesNoQuestion'
 
@@ -35,6 +36,8 @@ export function HealthQuestionnaire({
   const hasConcern = HEALTH_QUESTIONS.some(({ id }) => answers[id] === true)
 
   const confirm = async () => {
+    // Unlock the shared player AudioContext inside this tap (starts the workout).
+    resumePlayerAudio()
     setSaving(true)
     try {
       await recordAcceptance()

@@ -19,13 +19,16 @@ export interface Exercise {
   defaultDurationSeconds: number
 }
 
+/** Used when an item omits `restSeconds`. */
+export const DEFAULT_REST_SECONDS = 10
+
 export interface WorkoutItem {
   exerciseId: string
   /** Length of one set. Falls back to the exercise's default. */
   durationSeconds?: number
   sets: number
-  /** Rest after each set (also before the next exercise), in seconds. */
-  restSeconds: number
+  /** Rest after each set (also before the next exercise). Defaults to 10. */
+  restSeconds?: number
 }
 
 export type ExerciseLookup = (id: string) => Exercise | undefined
@@ -78,15 +81,17 @@ export function expandItems(items: WorkoutItem[], lookup: ExerciseLookup): Timel
   items.forEach((item, itemIndex) => {
     const { exercise, durationSeconds } = resolveItem(item, lookup)
 
+    const restSeconds = item.restSeconds ?? DEFAULT_REST_SECONDS
+
     for (let set = 1; set <= item.sets; set += 1) {
       const base = { exercise, itemIndex, setNumber: set, totalSets: item.sets }
       steps.push({ ...base, id: `${itemIndex}-${set}-work`, kind: 'work', durationSeconds })
-      if (item.restSeconds > 0) {
+      if (restSeconds > 0) {
         steps.push({
           ...base,
           id: `${itemIndex}-${set}-rest`,
           kind: 'rest',
-          durationSeconds: item.restSeconds,
+          durationSeconds: restSeconds,
         })
       }
     }

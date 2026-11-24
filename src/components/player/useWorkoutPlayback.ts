@@ -82,12 +82,17 @@ export function useWorkoutPlayback({ steps, rate, running, onFinish }: Options) 
   const doneBefore = steps.slice(0, state.index).reduce((sum, s) => sum + s.durationSeconds, 0)
   const overallElapsed = state.finished ? total : Math.min(doneBefore + state.elapsed, total)
 
+  const remaining = Math.max(step.durationSeconds - state.elapsed, 0)
+
   return {
     index: state.index,
     step,
-    remainingSeconds: Math.max(Math.ceil(step.durationSeconds - state.elapsed), 0),
+    /** Fractional seconds left in the step (rate-aware). */
+    remaining,
+    remainingSeconds: Math.max(Math.ceil(remaining), 0),
     overallElapsed,
     total,
+    finished: state.finished,
     completion: total > 0 ? Math.min(Math.round((overallElapsed / total) * 100), 100) : 0,
     next,
     previous,

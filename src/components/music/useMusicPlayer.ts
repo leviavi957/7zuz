@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { MUSIC } from '@/config/music'
+import { DUCK_DOWN_MS, RESTORE_MS, REST_MUSIC_LEVEL } from '@/config/playerAudio'
 import { usePersistentFlag, usePersistentNumber } from '@/hooks/usePersistentState'
+import { getPlayerAudioContext, resumePlayerAudio } from '@/lib/playerAudioContext'
 
 const FADE_STEP_MS = 40
 
-/** Linear volume fade. Uses a timer (not rAF) so it also finishes in a hidden tab. */
+/** Linear volume fade on the element. Uses a timer so it finishes in a hidden tab. */
 function fadeAudio(audio: HTMLAudioElement, target: number, ms: number, onDone?: () => void) {
   const from = audio.volume
   const startedAt = performance.now()
@@ -37,6 +39,10 @@ export interface MusicPlayer {
   start: () => void
   toggle: () => void
   setVolume: (volume: number) => void
+  /** Ease music down to REST_MUSIC_LEVEL (no-op when music is off). */
+  duckDown: () => void
+  /** Ease music back to the user's full level. */
+  restoreUp: () => void
 }
 
 interface Options {
@@ -47,9 +53,8 @@ interface Options {
 }
 
 /**
- * Looping background music for the player. It starts when the player opens
- * (the user's tap on "התחלת אימון" counts as the required gesture), follows
- * the workout's play/pause, and fades out when the player is left.
+ * Looping background music for the player. Ducking uses a GainNode on the
+ * shared AudioContext so the track never stops or restarts — only its level moves.
  */
 export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlayer {
   const [enabled, setEnabled] = usePersistentFlag('7zuz.music.enabled', () => true)
@@ -61,8 +66,13 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
 
   const available = Boolean(src) && failedSrc !== src
   const audioRef = useRef<HTMLAudioElement>(null)
+  const duckGainRef = useRef<GainNode | null>(null)
   const cancelFadeRef = useRef<() => void>(undefined)
   const startedRef = useRef(false)
+  const enabledRef = useRef(enabled)
+  const playingRef = useRef(playing)
+  enabledRef.current = enabled
+  playingRef.current = playing
 
   // The audio element lives as long as the track; leaving the player fades it out.
   useEffect(() => {
@@ -75,15 +85,56 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
     audioRef.current = audio
     startedRef.current = false
 
+    let source: MediaElementAudioSourceNode | null = null
+    let duckGain: GainNode | null = null
+    try {
+      const context = getPlayerAudioContext()
+      source = context.createMediaElementSource(audio)
+      duckGain = context.createGain()
+      duckGain.gain.value = 1
+      source.connect(duckGain)
+      duckGain.connect(context.destination)
+      duckGainRef.current = duckGain
+    } catch {
+      duckGainRef.current = null
+    }
+
     return () => {
       cancelFadeRef.current?.()
       audioRef.current = null
+      duckGainRef.current = null
+      try {
+        duckGain?.disconnect()
+        source?.disconnect()
+      } catch {
+        // Already disconnected.
+      }
       if (audio.paused) return
       fadeAudio(audio, 0, MUSIC.fadeOutMs, () => audio.pause())
     }
   }, [src])
 
   const level = (volume / 100) * (hidden ? MUSIC.hiddenVolumeFactor : 1)
+
+  const rampDuck = useCallback((target: number, ms: number) => {
+    const gain = duckGainRef.current
+    if (!gain) return
+    try {
+      const context = getPlayerAudioContext()
+      const now = context.currentTime
+      const seconds = Math.max(ms, 1) / 1000
+      gain.gain.cancelScheduledValues(now)
+      gain.gain.setValueAtTime(Math.max(gain.gain.value, 0.0001), now)
+      gain.gain.linearRampToValueAtTime(Math.max(target, 0.0001), now + seconds)
+    } catch {
+      // Ducking is optional.
+    }
+  }, [])
+
+  // When music is off or paused, clear any duck so resume starts clean.
+  useEffect(() => {
+    if (!enabled || !playing) rampDuck(1, RESTORE_MS)
+  }, [enabled, playing, rampDuck])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -94,6 +145,8 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
       audio.pause()
       return
     }
+
+    resumePlayerAudio()
 
     if (!audio.paused) {
       cancelFadeRef.current?.()
@@ -112,7 +165,6 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
         cancelFadeRef.current = fadeAudio(audio, level, fadeMs)
       })
       .catch((error: unknown) => {
-        // Autoplay was blocked (for example a direct page load): retry on the next gesture.
         if (error instanceof DOMException && error.name === 'NotAllowedError') {
           setBlocked(true)
           const retry = () => setGestureRetry((count) => count + 1)
@@ -123,8 +175,17 @@ export function useMusicPlayer({ src = MUSIC.src, playing }: Options): MusicPlay
   }, [available, enabled, playing, level, src, gestureRetry])
 
   const toggle = useCallback(() => setEnabled(!enabled), [enabled, setEnabled])
-
   const start = useCallback(() => setGestureRetry((count) => count + 1), [])
 
-  return { available, enabled, volume, blocked, start, toggle, setVolume }
+  const duckDown = useCallback(() => {
+    if (!enabledRef.current || !playingRef.current) return
+    rampDuck(REST_MUSIC_LEVEL, DUCK_DOWN_MS)
+  }, [rampDuck])
+
+  const restoreUp = useCallback(() => {
+    if (!enabledRef.current) return
+    rampDuck(1, RESTORE_MS)
+  }, [rampDuck])
+
+  return { available, enabled, volume, blocked, start, toggle, setVolume, duckDown, restoreUp }
 }

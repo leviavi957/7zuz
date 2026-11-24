@@ -1,4 +1,4 @@
-import { Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { Bell, BellOff, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Card } from '@/components/shared/Card'
 import { Button } from '@/components/ui/button'
 import { MusicPlayer } from '@/components/music/MusicPlayer'
@@ -13,6 +13,8 @@ interface PlayerControlsProps {
   rate: number
   onRateChange: (rate: number) => void
   music: MusicPlayerState
+  bellOn: boolean
+  onToggleBell: () => void
 }
 
 export function PlayerControls({
@@ -23,6 +25,8 @@ export function PlayerControls({
   rate,
   onRateChange,
   music,
+  bellOn,
+  onToggleBell,
 }: PlayerControlsProps) {
   return (
     <Card className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-3 md:p-4">
@@ -44,6 +48,16 @@ export function PlayerControls({
       </div>
       <SpeedControl value={rate} onChange={onRateChange} />
       <MusicPlayer music={music} />
+      <Button
+        variant={bellOn ? 'secondary' : 'ghost'}
+        size="icon"
+        aria-pressed={bellOn}
+        aria-label="פעמון"
+        title="פעמון"
+        onClick={onToggleBell}
+      >
+        {bellOn ? <Bell /> : <BellOff />}
+      </Button>
     </Card>
   )
 }

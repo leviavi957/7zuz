@@ -77,7 +77,8 @@ export const WORKOUTS: Workout[] = [
     difficulty: 'easy',
     createdAt: '2026-09-30',
     timesCompleted: 0,
-    items: [item('march-in-place', 3, 10), item('jumping-in-place', 3, 5, 10), item('arm-raises', 3, 5, 10), item('hip-flexor-stretch', 1, 0)],
+    // Demo timeline: 6 work + 5 rests (10s work / 10s rest, two exercises × 3 sets).
+    items: [item('jumping-in-place', 3, 10, 10), item('wall-pushups', 3, 10, 10)],
   },
   {
     id: 'desk-squats',

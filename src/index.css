@@ -326,11 +326,23 @@
     }
 }
 
+@keyframes rest-breathe {
+    from {
+        transform: scale(0.92);
+    }
+    to {
+        transform: scale(1.06);
+    }
+}
+
 @layer utilities {
     .stage-drift {
         animation: stage-drift calc(var(--stage-duration, 14s) / var(--stage-rate, 1)) ease-in-out infinite alternate;
     }
     .stage-breathe {
         animation: stage-breathe calc(var(--stage-duration, 6s) / var(--stage-rate, 1)) ease-in-out infinite alternate;
+    }
+    .rest-breathe {
+        animation: rest-breathe var(--rest-duration, 4.5s) ease-in-out infinite alternate;
     }
 }

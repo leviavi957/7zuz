@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { useAutoHide } from '@/hooks/useAutoHide'
 import { useDebouncedFlag } from '@/hooks/useDebouncedFlag'
 import { useFullscreen } from '@/hooks/useFullscreen'
+import { bellDurationMs } from '@/lib/bellSounds'
 import { getCompletionStats } from '@/lib/completionStats'
 import { findNextWorkStep, formatSeconds } from '@/lib/workoutTimeline'
 import { recordSession } from '@/mocks/sessions'
@@ -21,6 +22,8 @@ import { ExitDialog } from './ExitDialog'
 import { IdleFade } from './IdleFade'
 import { PlayerControls } from './PlayerControls'
 import { PlayerHud } from './PlayerHud'
+import { RestScreen } from './RestScreen'
+import { usePlayerCues } from './usePlayerCues'
 import { usePlayerShortcuts } from './usePlayerShortcuts'
 import { useWorkoutPlayback } from './useWorkoutPlayback'
 import { VideoSurface } from './VideoSurface'
@@ -28,6 +31,7 @@ import { VideoSurface } from './VideoSurface'
 const HIDE_AFTER_MS = 3000
 const BUFFERING_DELAY_MS = 450
 const BUFFERING_PREVIEW_MS = 4000
+const FINISH_BELL_MS = bellDurationMs(true)
 
 interface WorkoutPlayerProps {
   workout: Workout
@@ -75,15 +79,33 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
     },
     [navigate, preview, steps, workout.id],
   )
-  const finish = useCallback(() => leavePlayer(100), [leavePlayer])
+  const finish = useCallback(() => {
+    // Let the finish chime ring before the player unmounts.
+    window.setTimeout(() => leavePlayer(100), FINISH_BELL_MS)
+  }, [leavePlayer])
 
   // The video must keep playing while buffering, or `playing` would never fire.
   const videoPaused = paused || exitOpen
-  const running = !videoPaused && !(videoWaiting || previewStall)
-  const music = useMusicPlayer({ src: workout.musicSrc, playing: !videoPaused })
+  const buffering = videoWaiting || previewStall
+  const running = !videoPaused && !buffering
   const playback = useWorkoutPlayback({ steps, rate, running, onFinish: finish })
   const { step } = playback
+  const isRest = step.kind === 'rest'
+  const music = useMusicPlayer({
+    src: workout.musicSrc,
+    playing: !videoPaused,
+  })
   const upNext = step.kind === 'work' ? findNextWorkStep(steps, playback.index) : undefined
+
+  const cues = usePlayerCues({
+    steps,
+    index: playback.index,
+    remaining: playback.remaining,
+    finished: playback.finished,
+    running,
+    duckDown: music.duckDown,
+    restoreUp: music.restoreUp,
+  })
 
   const onWaiting = useCallback(() => setVideoWaiting(true), [])
   const onPlaying = useCallback(() => setVideoWaiting(false), [])
@@ -93,12 +115,20 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
 
   const togglePlay = useCallback(() => setPaused((value) => !value), [])
   const openExit = useCallback(() => setExitOpen(true), [])
+  const skipNext = useCallback(() => {
+    cues.markSkip()
+    playback.next()
+  }, [cues.markSkip, playback.next])
+  const skipPrevious = useCallback(() => {
+    cues.markSkip()
+    playback.previous()
+  }, [cues.markSkip, playback.previous])
 
   usePlayerShortcuts(
     {
       togglePlay,
-      next: playback.next,
-      previous: playback.previous,
+      next: skipNext,
+      previous: skipPrevious,
       toggleFullscreen: fullscreen.supported ? fullscreen.toggle : undefined,
       openExit,
       onActivity: controls.reveal,
@@ -124,16 +154,25 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
 
       {/* One tap on the stage toggles the controls. */}
       <div onClick={controls.toggle} className="relative col-start-1 row-start-2 min-h-0">
-        <VideoSurface
-          src={step.exercise.videoSrc}
-          posterSrc={step.exercise.posterSrc}
-          nextSrc={steps[playback.index + 1]?.exercise.videoSrc}
-          playbackRate={rate}
-          paused={videoPaused}
-          onWaiting={onWaiting}
-          onPlaying={onPlaying}
-          rounded={!fs}
-        />
+        {isRest ? (
+          <RestScreen
+            step={step}
+            remainingSeconds={playback.remainingSeconds}
+            paused={paused}
+            className={cn('absolute inset-0', !fs && 'rounded-3xl bg-card/60')}
+          />
+        ) : (
+          <VideoSurface
+            src={step.exercise.videoSrc}
+            posterSrc={step.exercise.posterSrc}
+            nextSrc={steps[playback.index + 1]?.exercise.videoSrc}
+            playbackRate={rate}
+            paused={videoPaused}
+            onWaiting={onWaiting}
+            onPlaying={onPlaying}
+            rounded={!fs}
+          />
+        )}
       </div>
 
       <ProgressBar
@@ -177,12 +216,19 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
             הפעלת מוזיקה
           </Button>
         ) : null}
-        <PlayerHud
-          step={step}
-          remainingSeconds={playback.remainingSeconds}
-          itemCount={workout.items.length}
-          paused={paused}
-        />
+        {isRest ? null : (
+          <PlayerHud
+            step={step}
+            remainingSeconds={playback.remainingSeconds}
+            itemCount={workout.items.length}
+            paused={paused}
+          />
+        )}
+        {isRest && paused ? (
+          <Badge className="self-start">
+            מושהה
+          </Badge>
+        ) : null}
         <IdleFade visible={controls.visible} className="flex flex-col gap-2">
           {upNext ? (
             <p className="self-start rounded-full bg-card px-4 py-2 text-sm shadow-soft">
@@ -193,11 +239,13 @@ export function WorkoutPlayer({ workout, preview = false }: WorkoutPlayerProps) 
           <PlayerControls
             playing={!paused}
             onTogglePlay={togglePlay}
-            onNext={playback.next}
-            onPrevious={playback.previous}
+            onNext={skipNext}
+            onPrevious={skipPrevious}
             rate={rate}
             onRateChange={setRate}
             music={music}
+            bellOn={cues.enabled}
+            onToggleBell={cues.toggle}
           />
         </IdleFade>
       </div>
