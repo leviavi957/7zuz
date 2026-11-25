@@ -81,6 +81,16 @@ export const WORKOUTS: Workout[] = [
     items: [item('jumping-in-place', 3, 10, 10), item('wall-pushups', 3, 10, 10)],
   },
   {
+    id: 'jump-and-raise',
+    title: 'קפיצות והרמות ידיים',
+    description: 'שילוב קצר של קפיצות במקום והרמות ידיים — שני הסרטונים הדמו.',
+    category: 'cardio',
+    difficulty: 'easy',
+    createdAt: '2026-11-25',
+    timesCompleted: 0,
+    items: [item('jumping-in-place', 3, 10, 10), item('arm-raises', 3, 10, 10)],
+  },
+  {
     id: 'desk-squats',
     title: 'סקוואטים ליד השולחן',
     description: 'חיזוק רגליים וישבן עם כיסא כעוגן.',
