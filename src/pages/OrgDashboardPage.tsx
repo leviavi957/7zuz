@@ -66,7 +66,7 @@ function OrgDashboardContent({ data, period, onPeriodChange }: {
         </>
       ) : null}
 
-      <OrgReports reports={data.reports} />
+      <OrgReports orgId={data.organization.id} />
 
       <Card tone="sage" className="text-sm text-muted-foreground">
         הנתונים בלוח זה אנונימיים ומסוכמים בלבד. לא מוצגים שמות, כתובות אימייל או קודים אישיים.

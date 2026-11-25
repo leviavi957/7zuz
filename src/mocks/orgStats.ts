@@ -27,15 +27,6 @@ export interface OrgReportMetrics {
   completionPercent: number
 }
 
-export interface OrgReport {
-  id: string
-  title: string
-  /** ISO date (day). */
-  date: string
-  summary: string
-  metrics?: OrgReportMetrics
-}
-
 export interface OrgTimePoint {
   date: string
   label: string
@@ -77,7 +68,6 @@ export interface OrgStats {
   workoutsOverTime: OrgTimePoint[]
   workoutsByWeekday: OrgWeekdayPoint[]
   trend: OrgTrend | null
-  reports: OrgReport[]
 }
 
 const WEEKDAY_LABELS = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'] as const
@@ -100,7 +90,6 @@ interface OrgSeed {
   registeredUsers: number
   /** Oldest → newest, length HISTORY_DAYS. */
   days: DaySeed[]
-  reports: OrgReport[]
 }
 
 function mulberry32(seed: number): () => number {
@@ -142,44 +131,6 @@ const DEMO_ORG: OrgSeed = {
   },
   registeredUsers: 28,
   days: buildDays(20241122, 28, 0.22),
-  reports: [
-    {
-      id: 'rep-1',
-      title: 'סיכום חודשי — אוקטובר',
-      date: '2025-11-02',
-      summary: 'סיכום אנונימי של השתתפות ומאמץ ממוצע לחודש שעבר.',
-      metrics: {
-        workoutsCompleted: 186,
-        participationPercent: 64,
-        averageEffort: 3.1,
-        completionPercent: 78,
-      },
-    },
-    {
-      id: 'rep-2',
-      title: 'דוח רבעוני — רבעון 3',
-      date: '2025-10-05',
-      summary: 'מגמות השתתפות לפי ימי השבוע, ללא פרטים אישיים.',
-      metrics: {
-        workoutsCompleted: 540,
-        participationPercent: 71,
-        averageEffort: 3.4,
-        completionPercent: 82,
-      },
-    },
-    {
-      id: 'rep-3',
-      title: 'עדכון קצר — שבוע 42',
-      date: '2025-10-20',
-      summary: 'תמצית שבועית של אימונים שהושלמו ושיעור השלמה.',
-      metrics: {
-        workoutsCompleted: 47,
-        participationPercent: 58,
-        averageEffort: 2.9,
-        completionPercent: 74,
-      },
-    },
-  ],
 }
 
 const SMALL_ORG: OrgSeed = {
@@ -190,14 +141,6 @@ const SMALL_ORG: OrgSeed = {
   },
   registeredUsers: 3,
   days: buildDays(77, 3, 0.4),
-  reports: [
-    {
-      id: 'rep-s1',
-      title: 'דוח התנסות',
-      date: '2025-11-10',
-      summary: 'דוח ראשוני לקבוצה קטנה — הנתונים המספריים מוסתרים לפי מדיניות הפרטיות.',
-    },
-  ],
 }
 
 const ORGS: Record<string, OrgSeed> = {
@@ -268,7 +211,6 @@ export async function getOrgStats(orgId: string, period: OrgPeriod): Promise<Org
   const seed = ORGS[orgId] ?? DEMO_ORG
   const organization = seed.organization
   const registeredUsers = seed.registeredUsers
-  const reports = seed.reports
 
   if (registeredUsers < ORG_PRIVACY_MIN_USERS) {
     return {
@@ -280,7 +222,6 @@ export async function getOrgStats(orgId: string, period: OrgPeriod): Promise<Org
       workoutsOverTime: [],
       workoutsByWeekday: [],
       trend: null,
-      reports,
     }
   }
 
@@ -338,6 +279,5 @@ export async function getOrgStats(orgId: string, period: OrgPeriod): Promise<Org
     workoutsOverTime,
     workoutsByWeekday,
     trend: buildTrend(completed, sumCompleted(previousDays)),
-    reports,
   }
 }

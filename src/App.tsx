@@ -7,6 +7,7 @@ import { AppErrorBoundary } from '@/components/shared/AppErrorBoundary'
 import { Toaster } from '@/components/shared/Toaster'
 import { NotificationNavigation } from '@/components/reminders/NotificationNavigation'
 import { ReminderScheduler } from '@/components/reminders/ReminderScheduler'
+import AdminReportsPage from '@/pages/AdminReportsPage'
 import DesignPage from '@/pages/DesignPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import HomePage from '@/pages/HomePage'
@@ -25,7 +26,15 @@ import WorkoutPlayerPage from '@/pages/WorkoutPlayerPage'
 import WorkoutsPage from '@/pages/WorkoutsPage'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 
-const BUILT_PATHS = new Set(['/', '/workouts', '/reminders', '/questionnaires', '/org', '/profile'])
+const BUILT_PATHS = new Set([
+  '/',
+  '/workouts',
+  '/reminders',
+  '/questionnaires',
+  '/org',
+  '/profile',
+  '/admin/reports',
+])
 
 const PLACEHOLDER_ITEMS = NAV_ITEMS.filter((item) => !BUILT_PATHS.has(item.to))
 
@@ -55,6 +64,7 @@ export default function App() {
                   <Route path="questionnaires" element={<QuestionnairesPage />} />
                   <Route path="org" element={<OrgDashboardPage />} />
                   <Route path="profile" element={<ProfilePage />} />
+                  <Route path="admin/reports" element={<AdminReportsPage />} />
                   {PLACEHOLDER_ITEMS.map(({ to, icon, label }) => (
                     <Route key={to} path={to} element={<PlaceholderPage icon={icon} title={label} />} />
                   ))}

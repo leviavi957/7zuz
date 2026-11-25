@@ -46,7 +46,9 @@ function isFeedbackPath(pathname: string): boolean {
 
 /**
  * Single auth gate: guests → /login, signed-in users on auth screens → role
- * home, and role-restricted routes (/org, /admin, workouts, training-only).
+ * home, and role-restricted routes (/org, /admin including /admin/reports,
+ * workouts, training-only). `/admin/*` is trainer-only; org_manager reads
+ * reports for its org only via the HR dashboard (`/org`).
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate()

@@ -24,7 +24,7 @@ export function isTrainerPreview(role: Role | null | undefined): boolean {
   return role === 'trainer'
 }
 
-/** Landing path after auth for the role (trainer uses /org until /admin exists). */
+/** Landing path after auth for the role (trainer and org_manager land on /org). */
 export function roleHomePath(role: Role | null | undefined): string {
   if (role === 'org_manager' || role === 'trainer') return '/org'
   return '/'
